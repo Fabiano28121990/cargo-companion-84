@@ -14,7 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      desmonte_items: {
+        Row: {
+          aguardando_desmonte: boolean
+          cliente: string
+          created_at: string
+          desmonte_concluido: boolean
+          dias_parado: number
+          emissao: string
+          id: string
+          inbound: string
+          item_id: string
+          nota_fiscal: string
+          od: string
+          ordem_venda: string
+          remessa: string
+          remessa_devolucao: string
+          status: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          aguardando_desmonte?: boolean
+          cliente?: string
+          created_at?: string
+          desmonte_concluido?: boolean
+          dias_parado?: number
+          emissao?: string
+          id?: string
+          inbound?: string
+          item_id?: string
+          nota_fiscal?: string
+          od?: string
+          ordem_venda?: string
+          remessa?: string
+          remessa_devolucao?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          aguardando_desmonte?: boolean
+          cliente?: string
+          created_at?: string
+          desmonte_concluido?: boolean
+          dias_parado?: number
+          emissao?: string
+          id?: string
+          inbound?: string
+          item_id?: string
+          nota_fiscal?: string
+          od?: string
+          ordem_venda?: string
+          remessa?: string
+          remessa_devolucao?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      romaneio_items: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          nota_fiscal: string
+          qtd_perfil: number
+          remessa: string
+          romaneio_id: string | null
+          status: string
+          transportadora: string
+          updated_at: string
+          user_id: string
+          valor: number
+          volume: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          id?: string
+          nota_fiscal?: string
+          qtd_perfil?: number
+          remessa?: string
+          romaneio_id?: string | null
+          status?: string
+          transportadora?: string
+          updated_at?: string
+          user_id: string
+          valor?: number
+          volume?: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          nota_fiscal?: string
+          qtd_perfil?: number
+          remessa?: string
+          romaneio_id?: string | null
+          status?: string
+          transportadora?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+          volume?: number
+        }
+        Relationships: []
+      }
+      romaneios: {
+        Row: {
+          created_at: string
+          id: string
+          numero: number
+          transportadora: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          numero?: number
+          transportadora?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          numero?: number
+          transportadora?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
