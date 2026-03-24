@@ -1,0 +1,115 @@
+import { useState } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Trash2, ArrowUpDown, Search } from 'lucide-react';
+import type { RomaneioItem } from '@/types/romaneio';
+import { formatCurrency } from '@/utils/exportUtils';
+
+interface ItemsTableProps {
+  items: RomaneioItem[];
+  selectedIds: Set<string>;
+  onSelectIds: (ids: Set<string>) => void;
+  onDeleteItem?: (id: string) => void;
+  showDelete?: boolean;
+}
+
+type SortKey = keyof RomaneioItem;
+
+export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteItem, showDelete = true }: ItemsTableProps) {
+  const [sortKey, setSortKey] = useState<SortKey>('transportadora');
+  const [sortAsc, setSortAsc] = useState(true);
+  const [search, setSearch] = useState('');
+
+  const filtered = items.filter(item =>
+    [item.transportadora, item.nota_fiscal, item.remessa, item.data].some(v => v.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const sorted = [...filtered].sort((a, b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    const cmp = typeof av === 'number' ? (av as number) - (bv as number) : String(av).localeCompare(String(bv));
+    return sortAsc ? cmp : -cmp;
+  });
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortAsc(!sortAsc);
+    else { setSortKey(key); setSortAsc(true); }
+  };
+
+  const allSelected = sorted.length > 0 && sorted.every(i => selectedIds.has(i.id));
+  const toggleAll = () => {
+    if (allSelected) onSelectIds(new Set());
+    else onSelectIds(new Set(sorted.map(i => i.id)));
+  };
+
+  const toggle = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    onSelectIds(next);
+  };
+
+  const totalValor = sorted.reduce((s, i) => s + i.valor, 0);
+  const totalVolume = sorted.reduce((s, i) => s + i.volume, 0);
+
+  const headers: { key: SortKey; label: string }[] = [
+    { key: 'transportadora', label: 'Transportadora' },
+    { key: 'data', label: 'Data' },
+    { key: 'remessa', label: 'Remessa' },
+    { key: 'nota_fiscal', label: 'Nota Fiscal' },
+    { key: 'volume', label: 'Volume' },
+    { key: 'valor', label: 'Valor' },
+    { key: 'qtd_perfil', label: 'Qtd Perfil' },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Pesquisar..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-9" />
+        </div>
+        <span className="text-xs text-muted-foreground">{sorted.length} itens | Vol: {totalVolume} | {formatCurrency(totalValor)}</span>
+      </div>
+      <div className="rounded-md border overflow-auto max-h-[400px] scrollbar-thin">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10"><Checkbox checked={allSelected} onCheckedChange={toggleAll} /></TableHead>
+              {headers.map(h => (
+                <TableHead key={h.key} className="cursor-pointer whitespace-nowrap" onClick={() => toggleSort(h.key)}>
+                  <span className="inline-flex items-center gap-1">{h.label}<ArrowUpDown className="h-3 w-3" /></span>
+                </TableHead>
+              ))}
+              {showDelete && <TableHead className="w-10" />}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sorted.map(item => (
+              <TableRow key={item.id} className={selectedIds.has(item.id) ? 'bg-accent' : ''}>
+                <TableCell><Checkbox checked={selectedIds.has(item.id)} onCheckedChange={() => toggle(item.id)} /></TableCell>
+                <TableCell className="font-medium">{item.transportadora}</TableCell>
+                <TableCell>{item.data}</TableCell>
+                <TableCell>{item.remessa}</TableCell>
+                <TableCell>{item.nota_fiscal}</TableCell>
+                <TableCell>{item.volume}</TableCell>
+                <TableCell>{formatCurrency(item.valor)}</TableCell>
+                <TableCell>{item.qtd_perfil}</TableCell>
+                {showDelete && (
+                  <TableCell>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDeleteItem?.(item.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {sorted.length === 0 && (
+              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhum item encontrado</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
