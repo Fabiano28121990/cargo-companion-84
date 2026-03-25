@@ -149,6 +149,33 @@ export type Database = {
         }
         Relationships: []
       }
+      transportadoras: {
+        Row: {
+          cnpj: string
+          contato: string
+          created_at: string
+          id: string
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          cnpj?: string
+          contato?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          user_id: string
+        }
+        Update: {
+          cnpj?: string
+          contato?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
