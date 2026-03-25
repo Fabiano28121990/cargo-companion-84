@@ -29,19 +29,24 @@ export function useDesmonteData() {
 
   const addItem = async (item: Partial<DesmonteItem>) => {
     if (!user) return;
+    const optimistic = { ...item, id: crypto.randomUUID(), user_id: user.id, aguardando_desmonte: true, desmonte_concluido: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as DesmonteItem;
+    setItems(prev => [optimistic, ...prev]);
     const { error } = await supabase.from('desmonte_items').insert({ ...item, user_id: user.id });
-    if (error) toast.error('Erro ao adicionar item de desmonte');
+    if (error) { toast.error('Erro ao adicionar item de desmonte'); fetchData(); }
   };
 
   const addItems = async (newItems: Partial<DesmonteItem>[]) => {
     if (!user) return;
+    const optimistics = newItems.map(i => ({ ...i, id: crypto.randomUUID(), user_id: user.id, aguardando_desmonte: true, desmonte_concluido: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as DesmonteItem));
+    setItems(prev => [...optimistics, ...prev]);
     const { error } = await supabase.from('desmonte_items').insert(newItems.map(i => ({ ...i, user_id: user.id })));
-    if (error) toast.error('Erro ao adicionar itens de desmonte');
+    if (error) { toast.error('Erro ao adicionar itens de desmonte'); fetchData(); }
   };
 
   const updateItem = async (id: string, updates: Partial<DesmonteItem>) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
     const { error } = await supabase.from('desmonte_items').update(updates).eq('id', id);
-    if (error) toast.error('Erro ao atualizar item');
+    if (error) { toast.error('Erro ao atualizar item'); fetchData(); }
   };
 
   const deleteItem = async (id: string) => {
@@ -57,14 +62,16 @@ export function useDesmonteData() {
   };
 
   const transferToCompleted = async (ids: string[]) => {
+    setItems(prev => prev.map(i => ids.includes(i.id) ? { ...i, aguardando_desmonte: false, desmonte_concluido: true } : i));
     const { error } = await supabase.from('desmonte_items').update({ aguardando_desmonte: false, desmonte_concluido: true }).in('id', ids);
-    if (error) toast.error('Erro ao transferir');
+    if (error) { toast.error('Erro ao transferir'); fetchData(); }
     else toast.success('Itens transferidos para Desmonte Concluído');
   };
 
   const transferToAguardando = async (ids: string[]) => {
+    setItems(prev => prev.map(i => ids.includes(i.id) ? { ...i, aguardando_desmonte: true, desmonte_concluido: false } : i));
     const { error } = await supabase.from('desmonte_items').update({ aguardando_desmonte: true, desmonte_concluido: false }).in('id', ids);
-    if (error) toast.error('Erro ao transferir');
+    if (error) { toast.error('Erro ao transferir'); fetchData(); }
     else toast.success('Itens transferidos para Aguard. Desmonte');
   };
 

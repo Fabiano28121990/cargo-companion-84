@@ -35,19 +35,24 @@ export function useRomaneioData() {
 
   const addItem = async (item: Partial<RomaneioItem>) => {
     if (!user) return;
+    const optimistic = { ...item, id: crypto.randomUUID(), user_id: user.id, status: item.status || 'nao_embarcado', romaneio_id: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as RomaneioItem;
+    setItems(prev => [optimistic, ...prev]);
     const { error } = await supabase.from('romaneio_items').insert({ ...item, user_id: user.id });
-    if (error) toast.error('Erro ao adicionar item');
+    if (error) { toast.error('Erro ao adicionar item'); fetchData(); }
   };
 
   const addItems = async (newItems: Partial<RomaneioItem>[]) => {
     if (!user) return;
+    const optimistics = newItems.map(i => ({ ...i, id: crypto.randomUUID(), user_id: user.id, status: i.status || 'nao_embarcado', romaneio_id: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as RomaneioItem));
+    setItems(prev => [...optimistics, ...prev]);
     const { error } = await supabase.from('romaneio_items').insert(newItems.map(i => ({ ...i, user_id: user.id })));
-    if (error) toast.error('Erro ao adicionar itens');
+    if (error) { toast.error('Erro ao adicionar itens'); fetchData(); }
   };
 
   const updateItem = async (id: string, updates: Partial<RomaneioItem>) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
     const { error } = await supabase.from('romaneio_items').update(updates).eq('id', id);
-    if (error) toast.error('Erro ao atualizar item');
+    if (error) { toast.error('Erro ao atualizar item'); fetchData(); }
   };
 
   const deleteItem = async (id: string) => {
@@ -63,8 +68,9 @@ export function useRomaneioData() {
   };
 
   const updateItemsStatus = async (ids: string[], status: string) => {
+    setItems(prev => prev.map(i => ids.includes(i.id) ? { ...i, status } : i));
     const { error } = await supabase.from('romaneio_items').update({ status }).in('id', ids);
-    if (error) toast.error('Erro ao atualizar status');
+    if (error) { toast.error('Erro ao atualizar status'); fetchData(); }
   };
 
   const createRomaneio = async (transportadora: string, itemIds: string[]) => {
@@ -72,12 +78,14 @@ export function useRomaneioData() {
     const numero = romaneios.filter(r => r.transportadora === transportadora).length + 1;
     const { data, error } = await supabase.from('romaneios').insert({ user_id: user.id, transportadora, numero }).select().single();
     if (error || !data) { toast.error('Erro ao criar romaneio'); return; }
+    setItems(prev => prev.map(i => itemIds.includes(i.id) ? { ...i, romaneio_id: data.id, status: 'embarcado' } : i));
     await supabase.from('romaneio_items').update({ romaneio_id: data.id, status: 'embarcado' }).in('id', itemIds);
     toast.success(`Romaneio #${numero} criado para ${transportadora}`);
   };
 
   const deleteRomaneio = async (id: string) => {
     setRomaneios(prev => prev.filter(r => r.id !== id));
+    setItems(prev => prev.map(i => i.romaneio_id === id ? { ...i, romaneio_id: null, status: 'nao_embarcado' } : i));
     await supabase.from('romaneio_items').update({ romaneio_id: null, status: 'nao_embarcado' }).eq('romaneio_id', id);
     await supabase.from('romaneios').delete().eq('id', id);
   };

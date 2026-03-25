@@ -11,9 +11,10 @@ import type { RomaneioItem } from '@/types/romaneio';
 interface ItemEntryFormProps {
   onAddItem: (item: Partial<RomaneioItem>) => Promise<void>;
   onAddItems: (items: Partial<RomaneioItem>[]) => Promise<void>;
+  showBulkImport?: boolean;
 }
 
-export default function ItemEntryForm({ onAddItem, onAddItems }: ItemEntryFormProps) {
+export default function ItemEntryForm({ onAddItem, onAddItems, showBulkImport = false }: ItemEntryFormProps) {
   const [open, setOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [form, setForm] = useState({ transportadora: '', data: '', nota_fiscal: '', remessa: '', volume: 0, valor: 0, qtd_perfil: 0 });
@@ -87,24 +88,28 @@ export default function ItemEntryForm({ onAddItem, onAddItems }: ItemEntryFormPr
         </DialogContent>
       </Dialog>
 
-      <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
-        <DialogTrigger asChild>
-          <Button size="sm" variant="outline"><Upload className="mr-1 h-4 w-4" />Importar em Massa</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Importação em Massa</DialogTitle></DialogHeader>
-          <p className="text-xs text-muted-foreground">Cole dados separados por tab: Transportadora, Data, Nota Fiscal, Remessa, Volume, Valor, Qtd Perfil</p>
-          <Textarea rows={8} value={bulkText} onChange={e => setBulkText(e.target.value)} placeholder="Cole os dados aqui..." />
-          <Button onClick={handleBulkImport}>Importar</Button>
-        </DialogContent>
-      </Dialog>
+      {showBulkImport && (
+        <>
+          <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline"><Upload className="mr-1 h-4 w-4" />Importar em Massa</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Importação em Massa</DialogTitle></DialogHeader>
+              <p className="text-xs text-muted-foreground">Cole dados separados por tab: Transportadora, Data, Nota Fiscal, Remessa, Volume, Valor, Qtd Perfil</p>
+              <Textarea rows={8} value={bulkText} onChange={e => setBulkText(e.target.value)} placeholder="Cole os dados aqui..." />
+              <Button onClick={handleBulkImport}>Importar</Button>
+            </DialogContent>
+          </Dialog>
 
-      <Button size="sm" variant="outline" asChild>
-        <label className="cursor-pointer">
-          <Upload className="mr-1 h-4 w-4" />Importar Excel
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileImport} className="hidden" />
-        </label>
-      </Button>
+          <Button size="sm" variant="outline" asChild>
+            <label className="cursor-pointer">
+              <Upload className="mr-1 h-4 w-4" />Importar Excel
+              <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileImport} className="hidden" />
+            </label>
+          </Button>
+        </>
+      )}
     </div>
   );
 }
