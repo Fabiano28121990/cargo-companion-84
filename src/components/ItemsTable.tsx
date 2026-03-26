@@ -99,7 +99,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
                 <TableCell>{item.qtd_perfil}</TableCell>
                 {showDelete && (
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDeleteItem?.(item.id)}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
