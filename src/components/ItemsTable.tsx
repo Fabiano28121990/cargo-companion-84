@@ -22,6 +22,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
   const [sortKey, setSortKey] = useState<SortKey>('transportadora');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = items.filter(item =>
     [item.transportadora, item.nota_fiscal, item.remessa, item.data].some(v => v.toLowerCase().includes(search.toLowerCase()))
