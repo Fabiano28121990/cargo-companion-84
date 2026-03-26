@@ -250,7 +250,7 @@ export default function Index() {
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
                   Desmonte Concluído <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
-                <Button size="sm" variant="destructive" onClick={async () => { if (aguardDesSel.size === 0) return; await desmonte.deleteItems(Array.from(aguardDesSel)); setAguardDesSel(new Set()); }} disabled={aguardDesSel.size === 0}>
+                <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardDesSel, setAguardDesSel, 'desmonte')} disabled={aguardDesSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({aguardDesSel.size})
                 </Button>
                 <ExportMenu data={desmonteExportData(filteredAguardDes)} filename="aguard_desmonte" title="Aguard. Desmonte" onPrint={() => handlePrintTable(desmonteExportData(filteredAguardDes), 'Aguard. Desmonte')} />
