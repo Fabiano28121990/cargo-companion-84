@@ -112,6 +112,11 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
           </TableBody>
         </Table>
       </div>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onConfirm={() => { if (deleteId) { onDeleteItem?.(deleteId); setDeleteId(null); } }}
+      />
     </div>
   );
 }
