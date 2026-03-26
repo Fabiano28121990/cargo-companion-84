@@ -296,8 +296,8 @@ export default function Index() {
                     </div>
                     <ExportMenu
                       data={rItems.map(i => ({ Transportadora: i.transportadora, Data: i.data, 'Nota Fiscal': i.nota_fiscal, Remessa: i.remessa, Volume: i.volume, Valor: formatCurrency(i.valor), 'Qtd Perfil': i.qtd_perfil }))}
-                      filename={`romaneio_${r.transportadora}_${r.numero}`}
-                      title={`Romaneio ${r.transportadora} #${r.numero}`}
+                      filename={`relatorio_${r.transportadora}_${r.numero}`}
+                      title={`Relatório ${r.transportadora} #${r.numero}`}
                       onPrint={() => handlePrintRomaneio(r)}
                     />
                   </div>
