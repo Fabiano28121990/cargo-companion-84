@@ -173,7 +173,7 @@ export default function Index() {
             <TabsTrigger value="aguard_liberacao">Aguard. Liberação ({filteredAguardLib.length})</TabsTrigger>
             <TabsTrigger value="aguard_desmonte">Aguard. Desmonte ({filteredAguardDes.length})</TabsTrigger>
             <TabsTrigger value="desmonte_concluido">Desmonte Concluído ({filteredDesCon.length})</TabsTrigger>
-            <TabsTrigger value="romaneios">Romaneios ({romaneio.romaneios.length})</TabsTrigger>
+            <TabsTrigger value="romaneios">Relatórios ({romaneio.romaneios.length})</TabsTrigger>
           </TabsList>
 
           {/* Não Embarcados */}
