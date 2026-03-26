@@ -118,6 +118,11 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
           </TableBody>
         </Table>
       </div>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onConfirm={() => { if (deleteId) { onDeleteItem?.(deleteId); setDeleteId(null); } }}
+      />
     </div>
   );
 }
