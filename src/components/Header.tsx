@@ -15,7 +15,7 @@ export default function Header() {
             <Truck className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-primary-foreground">Romaneio de Transporte</h1>
+            <h1 className="text-lg font-bold text-primary-foreground">Relatório de Transporte</h1>
             <p className="text-xs text-primary-foreground/70">{user?.email}</p>
           </div>
         </div>
