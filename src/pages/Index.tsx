@@ -91,10 +91,21 @@ export default function Index() {
     setNaoEmbSel(new Set());
   };
 
-  const handleDeleteSelected = async (ids: Set<string>, clearFn: (s: Set<string>) => void) => {
+  const handleDeleteSelected = (ids: Set<string>, clearFn: (s: Set<string>) => void, type: 'romaneio' | 'desmonte' = 'romaneio') => {
     if (ids.size === 0) { toast.error('Selecione itens'); return; }
-    await romaneio.deleteItems(Array.from(ids));
+    setBulkDeleteTarget({ ids, clearFn, type });
+  };
+
+  const confirmBulkDelete = async () => {
+    if (!bulkDeleteTarget) return;
+    const { ids, clearFn, type } = bulkDeleteTarget;
+    if (type === 'desmonte') {
+      await desmonte.deleteItems(Array.from(ids));
+    } else {
+      await romaneio.deleteItems(Array.from(ids));
+    }
     clearFn(new Set());
+    setBulkDeleteTarget(null);
   };
 
   const handleDesmonteTransferToCompleted = async () => {
