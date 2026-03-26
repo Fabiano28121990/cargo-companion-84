@@ -210,11 +210,12 @@ export default function Index() {
           {/* Aguard. Liberação */}
           <TabsContent value="aguard_liberacao" className="space-y-3">
             <div className="flex flex-wrap gap-2 justify-between">
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" variant="outline" onClick={handleTransferToNaoEmb} disabled={aguardLibSel.size === 0}>
                   <ArrowLeft className="mr-1 h-4 w-4" />Não Embarcados
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={async (item) => { await romaneio.addItem({ ...item, status: 'aguardando_liberacao' }); }} onAddItems={async (items) => { await romaneio.addItems(items.map(i => ({ ...i, status: 'aguardando_liberacao' }))); }} />
+                {aguardLibSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardLibSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardLibSel, setAguardLibSel)} disabled={aguardLibSel.size === 0}>
