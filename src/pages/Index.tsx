@@ -278,7 +278,7 @@ export default function Index() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">{r.transportadora}</h3>
-                        <p className="text-xs text-muted-foreground">Romaneio #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">Relatório #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
