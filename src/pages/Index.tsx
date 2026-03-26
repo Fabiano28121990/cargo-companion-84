@@ -8,6 +8,7 @@ import DesmonteEntryForm from '@/components/DesmonteEntryForm';
 import ExportMenu from '@/components/ExportMenu';
 import GlobalSearch from '@/components/GlobalSearch';
 import RomaneioReport from '@/components/RomaneioReport';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useRomaneioData } from '@/hooks/useRomaneioData';
