@@ -329,6 +329,13 @@ export default function Index() {
           <RomaneioReport ref={printRef} romaneio={printRomaneio.romaneio} items={printRomaneio.items} />
         </div>
       )}
+
+      <DeleteConfirmDialog
+        open={!!bulkDeleteTarget}
+        onOpenChange={(open) => { if (!open) setBulkDeleteTarget(null); }}
+        onConfirm={confirmBulkDelete}
+        count={bulkDeleteTarget?.ids.size ?? 0}
+      />
     </div>
   );
 }
