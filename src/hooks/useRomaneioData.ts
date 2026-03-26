@@ -76,9 +76,14 @@ export function useRomaneioData() {
   const createRomaneio = async (transportadora: string, itemIds: string[]) => {
     if (!user) return;
     const numero = romaneios.filter(r => r.transportadora === transportadora).length + 1;
+    const optimisticId = crypto.randomUUID();
+    const optimisticRomaneio: Romaneio = { id: optimisticId, user_id: user.id, transportadora, numero, created_at: new Date().toISOString() };
+    setRomaneios(prev => [optimisticRomaneio, ...prev]);
+    setItems(prev => prev.map(i => itemIds.includes(i.id) ? { ...i, romaneio_id: optimisticId, status: 'embarcado' } : i));
     const { data, error } = await supabase.from('romaneios').insert({ user_id: user.id, transportadora, numero }).select().single();
-    if (error || !data) { toast.error('Erro ao criar romaneio'); return; }
-    setItems(prev => prev.map(i => itemIds.includes(i.id) ? { ...i, romaneio_id: data.id, status: 'embarcado' } : i));
+    if (error || !data) { toast.error('Erro ao criar romaneio'); fetchData(); return; }
+    setRomaneios(prev => prev.map(r => r.id === optimisticId ? data : r));
+    setItems(prev => prev.map(i => i.romaneio_id === optimisticId ? { ...i, romaneio_id: data.id } : i));
     await supabase.from('romaneio_items').update({ romaneio_id: data.id, status: 'embarcado' }).in('id', itemIds);
     toast.success(`Romaneio #${numero} criado para ${transportadora}`);
   };

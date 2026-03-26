@@ -250,9 +250,12 @@ export default function Index() {
           {/* Desmonte Concluído */}
           <TabsContent value="desmonte_concluido" className="space-y-3">
             <div className="flex flex-wrap gap-2 justify-between">
-              <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
-                <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
-              </Button>
+              <div className="flex gap-2 items-center">
+                <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
+                  <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
+                </Button>
+                {desConSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{desConSel.size} selecionado(s)</span>}
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={async () => { if (desConSel.size === 0) return; await desmonte.deleteItems(Array.from(desConSel)); setDesConSel(new Set()); }} disabled={desConSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({desConSel.size})
