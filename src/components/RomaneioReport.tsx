@@ -24,7 +24,7 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
           <tr>
             <td style={{ border: '2px solid black', padding: '8px', width: '120px', fontWeight: 'bold', fontStyle: 'italic', fontSize: '14px' }}>intelbras</td>
             <td style={{ border: '2px solid black', padding: '8px', textAlign: 'center' }}>
-              <span style={{ fontSize: '16px', fontWeight: 'bold' }}>ROMANEIO DE TRANSPORTE Nº {numero}</span>
+              <span style={{ fontSize: '16px', fontWeight: 'bold' }}>RELATÓRIO DE TRANSPORTE Nº {numero}</span>
             </td>
             <td style={{ border: '2px solid black', padding: '8px', width: '120px', textAlign: 'right', fontSize: '10px' }}>Data: {dataAtual}</td>
           </tr>

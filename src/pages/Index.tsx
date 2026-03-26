@@ -173,7 +173,7 @@ export default function Index() {
             <TabsTrigger value="aguard_liberacao">Aguard. Liberação ({filteredAguardLib.length})</TabsTrigger>
             <TabsTrigger value="aguard_desmonte">Aguard. Desmonte ({filteredAguardDes.length})</TabsTrigger>
             <TabsTrigger value="desmonte_concluido">Desmonte Concluído ({filteredDesCon.length})</TabsTrigger>
-            <TabsTrigger value="romaneios">Romaneios ({romaneio.romaneios.length})</TabsTrigger>
+            <TabsTrigger value="romaneios">Relatórios ({romaneio.romaneios.length})</TabsTrigger>
           </TabsList>
 
           {/* Não Embarcados */}
@@ -181,7 +181,7 @@ export default function Index() {
             <div className="flex flex-wrap gap-2 items-center justify-between">
               <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" onClick={handleGenerateRomaneio} disabled={naoEmbSel.size === 0}>
-                  <FileText className="mr-1 h-4 w-4" />Gerar Romaneio
+                  <FileText className="mr-1 h-4 w-4" />Gerar Relatório
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
                 {naoEmbSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{naoEmbSel.size} selecionado(s)</span>}
@@ -278,7 +278,7 @@ export default function Index() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">{r.transportadora}</h3>
-                        <p className="text-xs text-muted-foreground">Romaneio #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">Relatório #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
@@ -296,15 +296,15 @@ export default function Index() {
                     </div>
                     <ExportMenu
                       data={rItems.map(i => ({ Transportadora: i.transportadora, Data: i.data, 'Nota Fiscal': i.nota_fiscal, Remessa: i.remessa, Volume: i.volume, Valor: formatCurrency(i.valor), 'Qtd Perfil': i.qtd_perfil }))}
-                      filename={`romaneio_${r.transportadora}_${r.numero}`}
-                      title={`Romaneio ${r.transportadora} #${r.numero}`}
+                      filename={`relatorio_${r.transportadora}_${r.numero}`}
+                      title={`Relatório ${r.transportadora} #${r.numero}`}
                       onPrint={() => handlePrintRomaneio(r)}
                     />
                   </div>
                 );
               })}
               {romaneio.romaneios.length === 0 && (
-                <p className="text-muted-foreground col-span-full text-center py-8">Nenhum romaneio gerado</p>
+                <p className="text-muted-foreground col-span-full text-center py-8">Nenhum relatório gerado</p>
               )}
             </div>
           </TabsContent>

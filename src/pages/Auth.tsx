@@ -49,8 +49,8 @@ export default function Auth() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
             <Truck className="h-7 w-7 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold">Romaneio de Transporte</CardTitle>
-          <p className="text-sm text-muted-foreground">Gestão de romaneios e logística</p>
+          <CardTitle className="text-2xl font-bold">Relatório de Transporte</CardTitle>
+          <p className="text-sm text-muted-foreground">Gestão de relatórios e logística</p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">
