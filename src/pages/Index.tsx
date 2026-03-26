@@ -230,7 +230,10 @@ export default function Index() {
           {/* Aguard. Desmonte */}
           <TabsContent value="aguard_desmonte" className="space-y-3">
             <div className="flex flex-wrap gap-2 items-center justify-between">
-              <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
+              <div className="flex gap-2 items-center">
+                <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
+                {aguardDesSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardDesSel.size} selecionado(s)</span>}
+              </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
                   Desmonte Concluído <ArrowRight className="ml-1 h-4 w-4" />
