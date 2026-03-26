@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, ArrowUpDown, Search } from 'lucide-react';
 import type { RomaneioItem } from '@/types/romaneio';
 import { formatCurrency } from '@/utils/exportUtils';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 interface ItemsTableProps {
   items: RomaneioItem[];
