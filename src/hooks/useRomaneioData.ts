@@ -85,7 +85,7 @@ export function useRomaneioData() {
     setRomaneios(prev => prev.map(r => r.id === optimisticId ? data : r));
     setItems(prev => prev.map(i => i.romaneio_id === optimisticId ? { ...i, romaneio_id: data.id } : i));
     await supabase.from('romaneio_items').update({ romaneio_id: data.id, status: 'embarcado' }).in('id', itemIds);
-    toast.success(`Romaneio #${numero} criado para ${transportadora}`);
+    toast.success(`Relatório #${numero} criado para ${transportadora}`);
   };
 
   const deleteRomaneio = async (id: string) => {
