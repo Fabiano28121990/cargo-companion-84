@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, ArrowUpDown, Search } from 'lucide-react';
 import type { RomaneioItem } from '@/types/romaneio';
 import { formatCurrency } from '@/utils/exportUtils';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 interface ItemsTableProps {
   items: RomaneioItem[];
@@ -21,6 +22,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
   const [sortKey, setSortKey] = useState<SortKey>('transportadora');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = items.filter(item =>
     [item.transportadora, item.nota_fiscal, item.remessa, item.data].some(v => v.toLowerCase().includes(search.toLowerCase()))
@@ -97,7 +99,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
                 <TableCell>{item.qtd_perfil}</TableCell>
                 {showDelete && (
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDeleteItem?.(item.id)}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
@@ -110,6 +112,11 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
           </TableBody>
         </Table>
       </div>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onConfirm={() => { if (deleteId) { onDeleteItem?.(deleteId); setDeleteId(null); } }}
+      />
     </div>
   );
 }

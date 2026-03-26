@@ -8,6 +8,7 @@ import DesmonteEntryForm from '@/components/DesmonteEntryForm';
 import ExportMenu from '@/components/ExportMenu';
 import GlobalSearch from '@/components/GlobalSearch';
 import RomaneioReport from '@/components/RomaneioReport';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useRomaneioData } from '@/hooks/useRomaneioData';
@@ -29,6 +30,7 @@ export default function Index() {
   const [aguardLibSel, setAguardLibSel] = useState<Set<string>>(new Set());
   const [aguardDesSel, setAguardDesSel] = useState<Set<string>>(new Set());
   const [desConSel, setDesConSel] = useState<Set<string>>(new Set());
+  const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{ ids: Set<string>; clearFn: (s: Set<string>) => void; type: 'romaneio' | 'desmonte' } | null>(null);
 
   const [globalSearch, setGlobalSearch] = useState('');
   const [filters, setFilters] = useState({ transportadora: '', dateFrom: '', dateTo: '' });
@@ -90,10 +92,21 @@ export default function Index() {
     setNaoEmbSel(new Set());
   };
 
-  const handleDeleteSelected = async (ids: Set<string>, clearFn: (s: Set<string>) => void) => {
+  const handleDeleteSelected = (ids: Set<string>, clearFn: (s: Set<string>) => void, type: 'romaneio' | 'desmonte' = 'romaneio') => {
     if (ids.size === 0) { toast.error('Selecione itens'); return; }
-    await romaneio.deleteItems(Array.from(ids));
+    setBulkDeleteTarget({ ids, clearFn, type });
+  };
+
+  const confirmBulkDelete = async () => {
+    if (!bulkDeleteTarget) return;
+    const { ids, clearFn, type } = bulkDeleteTarget;
+    if (type === 'desmonte') {
+      await desmonte.deleteItems(Array.from(ids));
+    } else {
+      await romaneio.deleteItems(Array.from(ids));
+    }
     clearFn(new Set());
+    setBulkDeleteTarget(null);
   };
 
   const handleDesmonteTransferToCompleted = async () => {
@@ -238,7 +251,7 @@ export default function Index() {
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
                   Desmonte Concluído <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
-                <Button size="sm" variant="destructive" onClick={async () => { if (aguardDesSel.size === 0) return; await desmonte.deleteItems(Array.from(aguardDesSel)); setAguardDesSel(new Set()); }} disabled={aguardDesSel.size === 0}>
+                <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardDesSel, setAguardDesSel, 'desmonte')} disabled={aguardDesSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({aguardDesSel.size})
                 </Button>
                 <ExportMenu data={desmonteExportData(filteredAguardDes)} filename="aguard_desmonte" title="Aguard. Desmonte" onPrint={() => handlePrintTable(desmonteExportData(filteredAguardDes), 'Aguard. Desmonte')} />
@@ -257,7 +270,7 @@ export default function Index() {
                 {desConSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{desConSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="destructive" onClick={async () => { if (desConSel.size === 0) return; await desmonte.deleteItems(Array.from(desConSel)); setDesConSel(new Set()); }} disabled={desConSel.size === 0}>
+                <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(desConSel, setDesConSel, 'desmonte')} disabled={desConSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({desConSel.size})
                 </Button>
                 <ExportMenu data={desmonteExportData(filteredDesCon)} filename="desmonte_concluido" title="Desmonte Concluído" onPrint={() => handlePrintTable(desmonteExportData(filteredDesCon), 'Desmonte Concluído')} />
@@ -317,6 +330,13 @@ export default function Index() {
           <RomaneioReport ref={printRef} romaneio={printRomaneio.romaneio} items={printRomaneio.items} />
         </div>
       )}
+
+      <DeleteConfirmDialog
+        open={!!bulkDeleteTarget}
+        onOpenChange={(open) => { if (!open) setBulkDeleteTarget(null); }}
+        onConfirm={confirmBulkDelete}
+        count={bulkDeleteTarget?.ids.size ?? 0}
+      />
     </div>
   );
 }

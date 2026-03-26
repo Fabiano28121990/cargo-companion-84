@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, ArrowUpDown, Search } from 'lucide-react';
 import type { DesmonteItem } from '@/types/romaneio';
 import { formatCurrency } from '@/utils/exportUtils';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 interface DesmonteTableProps {
   items: DesmonteItem[];
@@ -20,6 +21,7 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
   const [sortKey, setSortKey] = useState<SortKey>('nota_fiscal');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = items.filter(item =>
     [item.nota_fiscal, item.remessa, item.cliente, item.ordem_venda, item.status].some(v => v.toLowerCase().includes(search.toLowerCase()))
@@ -104,7 +106,7 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
                 <TableCell>{item.status}</TableCell>
                 <TableCell>{item.inbound}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDeleteItem?.(item.id)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </TableCell>
@@ -116,6 +118,11 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
           </TableBody>
         </Table>
       </div>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onConfirm={() => { if (deleteId) { onDeleteItem?.(deleteId); setDeleteId(null); } }}
+      />
     </div>
   );
 }
