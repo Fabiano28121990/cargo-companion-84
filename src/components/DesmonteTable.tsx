@@ -106,7 +106,7 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
                 <TableCell>{item.status}</TableCell>
                 <TableCell>{item.inbound}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDeleteItem?.(item.id)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </TableCell>
