@@ -183,7 +183,7 @@ export default function Index() {
                 <Button size="sm" onClick={handleGenerateRomaneio} disabled={naoEmbSel.size === 0}>
                   <FileText className="mr-1 h-4 w-4" />Gerar Romaneio
                 </Button>
-                <ItemEntryForm onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
+                <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleTransferToAguardLib} disabled={naoEmbSel.size === 0}>
