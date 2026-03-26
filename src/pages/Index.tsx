@@ -179,11 +179,12 @@ export default function Index() {
           {/* Não Embarcados */}
           <TabsContent value="nao_embarcados" className="space-y-3">
             <div className="flex flex-wrap gap-2 items-center justify-between">
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" onClick={handleGenerateRomaneio} disabled={naoEmbSel.size === 0}>
                   <FileText className="mr-1 h-4 w-4" />Gerar Romaneio
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
+                {naoEmbSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{naoEmbSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleTransferToAguardLib} disabled={naoEmbSel.size === 0}>
@@ -209,11 +210,12 @@ export default function Index() {
           {/* Aguard. Liberação */}
           <TabsContent value="aguard_liberacao" className="space-y-3">
             <div className="flex flex-wrap gap-2 justify-between">
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" variant="outline" onClick={handleTransferToNaoEmb} disabled={aguardLibSel.size === 0}>
                   <ArrowLeft className="mr-1 h-4 w-4" />Não Embarcados
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={async (item) => { await romaneio.addItem({ ...item, status: 'aguardando_liberacao' }); }} onAddItems={async (items) => { await romaneio.addItems(items.map(i => ({ ...i, status: 'aguardando_liberacao' }))); }} />
+                {aguardLibSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardLibSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardLibSel, setAguardLibSel)} disabled={aguardLibSel.size === 0}>
@@ -228,7 +230,10 @@ export default function Index() {
           {/* Aguard. Desmonte */}
           <TabsContent value="aguard_desmonte" className="space-y-3">
             <div className="flex flex-wrap gap-2 items-center justify-between">
-              <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
+              <div className="flex gap-2 items-center">
+                <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
+                {aguardDesSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardDesSel.size} selecionado(s)</span>}
+              </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
                   Desmonte Concluído <ArrowRight className="ml-1 h-4 w-4" />
@@ -245,9 +250,12 @@ export default function Index() {
           {/* Desmonte Concluído */}
           <TabsContent value="desmonte_concluido" className="space-y-3">
             <div className="flex flex-wrap gap-2 justify-between">
-              <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
-                <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
-              </Button>
+              <div className="flex gap-2 items-center">
+                <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
+                  <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
+                </Button>
+                {desConSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{desConSel.size} selecionado(s)</span>}
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={async () => { if (desConSel.size === 0) return; await desmonte.deleteItems(Array.from(desConSel)); setDesConSel(new Set()); }} disabled={desConSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({desConSel.size})
