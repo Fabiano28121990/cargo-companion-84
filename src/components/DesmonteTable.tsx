@@ -21,6 +21,7 @@ export default function DesmonteTable({ items, selectedIds, onSelectIds, onDelet
   const [sortKey, setSortKey] = useState<SortKey>('nota_fiscal');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = items.filter(item =>
     [item.nota_fiscal, item.remessa, item.cliente, item.ordem_venda, item.status].some(v => v.toLowerCase().includes(search.toLowerCase()))
