@@ -304,7 +304,7 @@ export default function Index() {
                 );
               })}
               {romaneio.romaneios.length === 0 && (
-                <p className="text-muted-foreground col-span-full text-center py-8">Nenhum romaneio gerado</p>
+                <p className="text-muted-foreground col-span-full text-center py-8">Nenhum relatório gerado</p>
               )}
             </div>
           </TabsContent>
