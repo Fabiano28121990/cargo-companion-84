@@ -216,7 +216,7 @@ export default function Index() {
             <div className="flex justify-end">
               <ExportMenu data={romaneioExportData(filteredEmb)} filename="embarcados" title="Embarcados" onPrint={() => handlePrintTable(romaneioExportData(filteredEmb), 'Embarcados')} />
             </div>
-            <ItemsTable items={filteredEmb} selectedIds={embSel} onSelectIds={setEmbSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredEmb} selectedIds={embSel} onSelectIds={setEmbSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Aguard. Liberação */}
