@@ -208,7 +208,7 @@ export default function Index() {
                 <ExportMenu data={romaneioExportData(filteredNaoEmb)} filename="nao_embarcados" title="Não Embarcados" onPrint={() => handlePrintTable(romaneioExportData(filteredNaoEmb), 'Não Embarcados')} />
               </div>
             </div>
-            <ItemsTable items={filteredNaoEmb} selectedIds={naoEmbSel} onSelectIds={setNaoEmbSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredNaoEmb} selectedIds={naoEmbSel} onSelectIds={setNaoEmbSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Embarcados */}
