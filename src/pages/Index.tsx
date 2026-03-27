@@ -235,7 +235,7 @@ export default function Index() {
                 <ExportMenu data={romaneioExportData(filteredAguardLib)} filename="aguard_liberacao" title="Aguard. Liberação" onPrint={() => handlePrintTable(romaneioExportData(filteredAguardLib), 'Aguard. Liberação')} />
               </div>
             </div>
-            <ItemsTable items={filteredAguardLib} selectedIds={aguardLibSel} onSelectIds={setAguardLibSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredAguardLib} selectedIds={aguardLibSel} onSelectIds={setAguardLibSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Aguard. Desmonte */}
