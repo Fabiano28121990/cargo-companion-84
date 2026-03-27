@@ -264,7 +264,6 @@ export default function Index() {
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
                   <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
                 </Button>
-                {desConSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{desConSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(desConSel, setDesConSel, 'desmonte')} disabled={desConSel.size === 0}>
