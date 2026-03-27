@@ -294,7 +294,7 @@ export default function Index() {
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
                           <Printer className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => romaneio.deleteRomaneio(r.id)}>
+                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteRomaneioId(r.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
