@@ -272,7 +272,7 @@ export default function Index() {
                 <ExportMenu data={desmonteExportData(filteredDesCon)} filename="desmonte_concluido" title="Desmonte Concluído" onPrint={() => handlePrintTable(desmonteExportData(filteredDesCon), 'Desmonte Concluído')} />
               </div>
             </div>
-            <DesmonteTable items={filteredDesCon} selectedIds={desConSel} onSelectIds={setDesConSel} onDeleteItem={desmonte.deleteItem} />
+            <DesmonteTable items={filteredDesCon} selectedIds={desConSel} onSelectIds={setDesConSel} onDeleteItem={desmonte.deleteItem} onUpdateItem={desmonte.updateItem} />
           </TabsContent>
 
           {/* Romaneios */}
