@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { Truck, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import ThemeToggle from './ThemeToggle';
 import TransportadoraManager from './TransportadoraManager';
+import logo from '@/assets/intelbras.png';
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -11,9 +12,7 @@ export default function Header() {
     <header className="border-b bg-primary px-4 py-3">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/20">
-            <Truck className="h-6 w-6 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="Logo" className="h-10 w-auto" />
           <div>
             <h1 className="text-lg font-bold text-primary-foreground">Relatório de Transporte</h1>
             <p className="text-xs text-primary-foreground/70">{user?.email}</p>

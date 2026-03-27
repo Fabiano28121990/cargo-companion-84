@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Truck, Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
+import logo from '@/assets/intelbras.png';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -46,9 +47,7 @@ export default function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md animate-fade-in">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-            <Truck className="h-7 w-7 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="Logo" className="mx-auto h-16 w-auto" />
           <CardTitle className="text-2xl font-bold">Relatório de Transporte</CardTitle>
           <p className="text-sm text-muted-foreground">Gestão de relatórios e logística</p>
         </CardHeader>

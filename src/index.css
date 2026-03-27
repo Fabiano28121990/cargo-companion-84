@@ -104,3 +104,30 @@
     scrollbar-width: thin;
   }
 }
+
+/* Themed calendar: dark theme = white text, light theme = black text */
+.themed-calendar {
+  --rdp-accent-color: hsl(var(--primary));
+}
+
+:root .themed-calendar {
+  color: hsl(0 0% 5%);
+}
+
+.dark .themed-calendar {
+  color: hsl(0 0% 95%);
+}
+
+.dark .themed-calendar .rdp-day,
+.dark .themed-calendar .rdp-head_cell,
+.dark .themed-calendar .rdp-caption_label,
+.dark .themed-calendar .rdp-nav_button {
+  color: hsl(0 0% 95%);
+}
+
+:root:not(.dark) .themed-calendar .rdp-day,
+:root:not(.dark) .themed-calendar .rdp-head_cell,
+:root:not(.dark) .themed-calendar .rdp-caption_label,
+:root:not(.dark) .themed-calendar .rdp-nav_button {
+  color: hsl(0 0% 5%);
+}
