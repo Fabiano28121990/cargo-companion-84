@@ -197,7 +197,6 @@ export default function Index() {
                   <FileText className="mr-1 h-4 w-4" />Gerar Relatório
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
-                {naoEmbSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{naoEmbSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleTransferToAguardLib} disabled={naoEmbSel.size === 0}>
