@@ -334,6 +334,12 @@ export default function Index() {
         onConfirm={confirmBulkDelete}
         count={bulkDeleteTarget?.ids.size ?? 0}
       />
+      <DeleteConfirmDialog
+        open={!!deleteRomaneioId}
+        onOpenChange={(open) => { if (!open) setDeleteRomaneioId(null); }}
+        onConfirm={() => { if (deleteRomaneioId) { romaneio.deleteRomaneio(deleteRomaneioId); setDeleteRomaneioId(null); } }}
+        itemLabel="relatório"
+      />
     </div>
   );
 }
