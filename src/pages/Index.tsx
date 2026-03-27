@@ -31,6 +31,7 @@ export default function Index() {
   const [aguardDesSel, setAguardDesSel] = useState<Set<string>>(new Set());
   const [desConSel, setDesConSel] = useState<Set<string>>(new Set());
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{ ids: Set<string>; clearFn: (s: Set<string>) => void; type: 'romaneio' | 'desmonte' } | null>(null);
+  const [deleteRomaneioId, setDeleteRomaneioId] = useState<string | null>(null);
 
   const [globalSearch, setGlobalSearch] = useState('');
   const [filters, setFilters] = useState({ transportadora: '', dateFrom: '', dateTo: '' });
