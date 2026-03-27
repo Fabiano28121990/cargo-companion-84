@@ -3,10 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Upload } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Plus, Upload, CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 import type { RomaneioItem } from '@/types/romaneio';
+import { useTransportadoras } from '@/hooks/useTransportadoras';
 
 interface ItemEntryFormProps {
   onAddItem: (item: Partial<RomaneioItem>) => Promise<void>;
@@ -19,6 +25,8 @@ export default function ItemEntryForm({ onAddItem, onAddItems, showBulkImport = 
   const [bulkOpen, setBulkOpen] = useState(false);
   const [form, setForm] = useState({ transportadora: '', data: '', nota_fiscal: '', remessa: '', volume: 0, valor: 0, qtd_perfil: 0 });
   const [bulkText, setBulkText] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const { transportadoras } = useTransportadoras();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +73,8 @@ export default function ItemEntryForm({ onAddItem, onAddItems, showBulkImport = 
     e.target.value = '';
   };
 
+  const selectedDate = form.data ? new Date(form.data + 'T00:00:00') : undefined;
+
   return (
     <div className="flex gap-2 flex-wrap">
       <Dialog open={open} onOpenChange={setOpen}>
@@ -74,8 +84,35 @@ export default function ItemEntryForm({ onAddItem, onAddItems, showBulkImport = 
         <DialogContent>
           <DialogHeader><DialogTitle>Adicionar Item</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="grid gap-3">
-            <Input placeholder="Transportadora" value={form.transportadora} onChange={e => setForm(f => ({ ...f, transportadora: e.target.value }))} required />
-            <Input placeholder="Data" type="date" value={form.data} onChange={e => setForm(f => ({ ...f, data: e.target.value }))} />
+            <Select value={form.transportadora} onValueChange={v => setForm(f => ({ ...f, transportadora: v }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a Transportadora" />
+              </SelectTrigger>
+              <SelectContent>
+                {transportadoras.map(t => (
+                  <SelectItem key={t.id} value={t.nome}>{t.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {form.data ? format(new Date(form.data + 'T00:00:00'), 'dd/MM/yyyy') : 'Selecione a data'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 themed-calendar" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={d => {
+                    if (d) setForm(f => ({ ...f, data: format(d, 'yyyy-MM-dd') }));
+                    setCalendarOpen(false);
+                  }}
+                  locale={ptBR}
+                />
+              </PopoverContent>
+            </Popover>
             <Input placeholder="Nota Fiscal" value={form.nota_fiscal} onChange={e => setForm(f => ({ ...f, nota_fiscal: e.target.value }))} />
             <Input placeholder="Remessa" value={form.remessa} onChange={e => setForm(f => ({ ...f, remessa: e.target.value }))} />
             <div className="grid grid-cols-3 gap-2">
