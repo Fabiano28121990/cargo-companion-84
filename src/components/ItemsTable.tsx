@@ -3,26 +3,39 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, ArrowUpDown, Search } from 'lucide-react';
+import { Trash2, ArrowUpDown, Search, Pencil } from 'lucide-react';
 import type { RomaneioItem } from '@/types/romaneio';
 import { formatCurrency } from '@/utils/exportUtils';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import EditItemDialog from './EditItemDialog';
 
 interface ItemsTableProps {
   items: RomaneioItem[];
   selectedIds: Set<string>;
   onSelectIds: (ids: Set<string>) => void;
   onDeleteItem?: (id: string) => void;
+  onUpdateItem?: (id: string, updates: Partial<RomaneioItem>) => void;
   showDelete?: boolean;
 }
 
 type SortKey = keyof RomaneioItem;
 
-export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteItem, showDelete = true }: ItemsTableProps) {
+const editFields = [
+  { key: 'transportadora', label: 'Transportadora' },
+  { key: 'data', label: 'Data' },
+  { key: 'remessa', label: 'Remessa' },
+  { key: 'nota_fiscal', label: 'Nota Fiscal' },
+  { key: 'volume', label: 'Volume', type: 'number' },
+  { key: 'valor', label: 'Valor', type: 'number' },
+  { key: 'qtd_perfil', label: 'Qtd Perfil', type: 'number' },
+];
+
+export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteItem, onUpdateItem, showDelete = true }: ItemsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('transportadora');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editItem, setEditItem] = useState<RomaneioItem | null>(null);
 
   const filtered = items.filter(item =>
     [item.transportadora, item.nota_fiscal, item.remessa, item.data].some(v => v.toLowerCase().includes(search.toLowerCase()))
@@ -73,6 +86,11 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
         </div>
         <span className="text-xs text-muted-foreground">{sorted.length} itens | Vol: {totalVolume} | {formatCurrency(totalValor)}</span>
       </div>
+      {selectedIds.size > 0 && (
+        <div className="text-sm font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
+          {selectedIds.size} selecionado(s)
+        </div>
+      )}
       <div className="rounded-md border overflow-auto max-h-[400px] scrollbar-thin">
         <Table>
           <TableHeader>
@@ -83,7 +101,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
                   <span className="inline-flex items-center gap-1">{h.label}<ArrowUpDown className="h-3 w-3" /></span>
                 </TableHead>
               ))}
-              {showDelete && <TableHead className="w-10" />}
+              <TableHead className="w-20">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,13 +115,20 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
                 <TableCell>{item.volume}</TableCell>
                 <TableCell>{formatCurrency(item.valor)}</TableCell>
                 <TableCell>{item.qtd_perfil}</TableCell>
-                {showDelete && (
-                  <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </TableCell>
-                )}
+                <TableCell>
+                  <div className="flex gap-1">
+                    {onUpdateItem && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => setEditItem(item)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {showDelete && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
             {sorted.length === 0 && (
@@ -116,6 +141,13 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
         open={!!deleteId}
         onOpenChange={(open) => { if (!open) setDeleteId(null); }}
         onConfirm={() => { if (deleteId) { onDeleteItem?.(deleteId); setDeleteId(null); } }}
+      />
+      <EditItemDialog
+        open={!!editItem}
+        onOpenChange={(open) => { if (!open) setEditItem(null); }}
+        item={editItem}
+        fields={editFields}
+        onSave={(id, updates) => onUpdateItem?.(id, updates)}
       />
     </div>
   );
