@@ -227,7 +227,6 @@ export default function Index() {
                   <ArrowLeft className="mr-1 h-4 w-4" />Não Embarcados
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={async (item) => { await romaneio.addItem({ ...item, status: 'aguardando_liberacao' }); }} onAddItems={async (items) => { await romaneio.addItems(items.map(i => ({ ...i, status: 'aguardando_liberacao' }))); }} />
-                {aguardLibSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardLibSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardLibSel, setAguardLibSel)} disabled={aguardLibSel.size === 0}>
