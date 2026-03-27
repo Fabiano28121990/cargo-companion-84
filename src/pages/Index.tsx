@@ -254,7 +254,7 @@ export default function Index() {
                 <ExportMenu data={desmonteExportData(filteredAguardDes)} filename="aguard_desmonte" title="Aguard. Desmonte" onPrint={() => handlePrintTable(desmonteExportData(filteredAguardDes), 'Aguard. Desmonte')} />
               </div>
             </div>
-            <DesmonteTable items={filteredAguardDes} selectedIds={aguardDesSel} onSelectIds={setAguardDesSel} onDeleteItem={desmonte.deleteItem} />
+            <DesmonteTable items={filteredAguardDes} selectedIds={aguardDesSel} onSelectIds={setAguardDesSel} onDeleteItem={desmonte.deleteItem} onUpdateItem={desmonte.updateItem} />
           </TabsContent>
 
           {/* Desmonte Concluído */}
