@@ -31,6 +31,7 @@ export default function Index() {
   const [aguardDesSel, setAguardDesSel] = useState<Set<string>>(new Set());
   const [desConSel, setDesConSel] = useState<Set<string>>(new Set());
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{ ids: Set<string>; clearFn: (s: Set<string>) => void; type: 'romaneio' | 'desmonte' } | null>(null);
+  const [deleteRomaneioId, setDeleteRomaneioId] = useState<string | null>(null);
 
   const [globalSearch, setGlobalSearch] = useState('');
   const [filters, setFilters] = useState({ transportadora: '', dateFrom: '', dateTo: '' });
@@ -197,7 +198,6 @@ export default function Index() {
                   <FileText className="mr-1 h-4 w-4" />Gerar Relatório
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
-                {naoEmbSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{naoEmbSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleTransferToAguardLib} disabled={naoEmbSel.size === 0}>
@@ -209,7 +209,7 @@ export default function Index() {
                 <ExportMenu data={romaneioExportData(filteredNaoEmb)} filename="nao_embarcados" title="Não Embarcados" onPrint={() => handlePrintTable(romaneioExportData(filteredNaoEmb), 'Não Embarcados')} />
               </div>
             </div>
-            <ItemsTable items={filteredNaoEmb} selectedIds={naoEmbSel} onSelectIds={setNaoEmbSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredNaoEmb} selectedIds={naoEmbSel} onSelectIds={setNaoEmbSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Embarcados */}
@@ -217,7 +217,7 @@ export default function Index() {
             <div className="flex justify-end">
               <ExportMenu data={romaneioExportData(filteredEmb)} filename="embarcados" title="Embarcados" onPrint={() => handlePrintTable(romaneioExportData(filteredEmb), 'Embarcados')} />
             </div>
-            <ItemsTable items={filteredEmb} selectedIds={embSel} onSelectIds={setEmbSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredEmb} selectedIds={embSel} onSelectIds={setEmbSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Aguard. Liberação */}
@@ -228,7 +228,6 @@ export default function Index() {
                   <ArrowLeft className="mr-1 h-4 w-4" />Não Embarcados
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={async (item) => { await romaneio.addItem({ ...item, status: 'aguardando_liberacao' }); }} onAddItems={async (items) => { await romaneio.addItems(items.map(i => ({ ...i, status: 'aguardando_liberacao' }))); }} />
-                {aguardLibSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardLibSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardLibSel, setAguardLibSel)} disabled={aguardLibSel.size === 0}>
@@ -237,7 +236,7 @@ export default function Index() {
                 <ExportMenu data={romaneioExportData(filteredAguardLib)} filename="aguard_liberacao" title="Aguard. Liberação" onPrint={() => handlePrintTable(romaneioExportData(filteredAguardLib), 'Aguard. Liberação')} />
               </div>
             </div>
-            <ItemsTable items={filteredAguardLib} selectedIds={aguardLibSel} onSelectIds={setAguardLibSel} onDeleteItem={romaneio.deleteItem} />
+            <ItemsTable items={filteredAguardLib} selectedIds={aguardLibSel} onSelectIds={setAguardLibSel} onDeleteItem={romaneio.deleteItem} onUpdateItem={romaneio.updateItem} />
           </TabsContent>
 
           {/* Aguard. Desmonte */}
@@ -245,7 +244,6 @@ export default function Index() {
             <div className="flex flex-wrap gap-2 items-center justify-between">
               <div className="flex gap-2 items-center">
                 <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
-                {aguardDesSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{aguardDesSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
@@ -257,7 +255,7 @@ export default function Index() {
                 <ExportMenu data={desmonteExportData(filteredAguardDes)} filename="aguard_desmonte" title="Aguard. Desmonte" onPrint={() => handlePrintTable(desmonteExportData(filteredAguardDes), 'Aguard. Desmonte')} />
               </div>
             </div>
-            <DesmonteTable items={filteredAguardDes} selectedIds={aguardDesSel} onSelectIds={setAguardDesSel} onDeleteItem={desmonte.deleteItem} />
+            <DesmonteTable items={filteredAguardDes} selectedIds={aguardDesSel} onSelectIds={setAguardDesSel} onDeleteItem={desmonte.deleteItem} onUpdateItem={desmonte.updateItem} />
           </TabsContent>
 
           {/* Desmonte Concluído */}
@@ -267,7 +265,6 @@ export default function Index() {
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToAguardando} disabled={desConSel.size === 0}>
                   <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
                 </Button>
-                {desConSel.size > 0 && <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">{desConSel.size} selecionado(s)</span>}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(desConSel, setDesConSel, 'desmonte')} disabled={desConSel.size === 0}>
@@ -276,7 +273,7 @@ export default function Index() {
                 <ExportMenu data={desmonteExportData(filteredDesCon)} filename="desmonte_concluido" title="Desmonte Concluído" onPrint={() => handlePrintTable(desmonteExportData(filteredDesCon), 'Desmonte Concluído')} />
               </div>
             </div>
-            <DesmonteTable items={filteredDesCon} selectedIds={desConSel} onSelectIds={setDesConSel} onDeleteItem={desmonte.deleteItem} />
+            <DesmonteTable items={filteredDesCon} selectedIds={desConSel} onSelectIds={setDesConSel} onDeleteItem={desmonte.deleteItem} onUpdateItem={desmonte.updateItem} />
           </TabsContent>
 
           {/* Romaneios */}
@@ -297,7 +294,7 @@ export default function Index() {
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
                           <Printer className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => romaneio.deleteRomaneio(r.id)}>
+                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteRomaneioId(r.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -336,6 +333,12 @@ export default function Index() {
         onOpenChange={(open) => { if (!open) setBulkDeleteTarget(null); }}
         onConfirm={confirmBulkDelete}
         count={bulkDeleteTarget?.ids.size ?? 0}
+      />
+      <DeleteConfirmDialog
+        open={!!deleteRomaneioId}
+        onOpenChange={(open) => { if (!open) setDeleteRomaneioId(null); }}
+        onConfirm={() => { if (deleteRomaneioId) { romaneio.deleteRomaneio(deleteRomaneioId); setDeleteRomaneioId(null); } }}
+        itemLabel="relatório"
       />
     </div>
   );
