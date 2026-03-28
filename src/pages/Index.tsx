@@ -20,7 +20,7 @@ import { useRomaneioData } from '@/hooks/useRomaneioData';
 import { useDesmonteData } from '@/hooks/useDesmonteData';
 import { useAuth } from '@/hooks/useAuth';
 import Auth from './Auth';
-import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer, CalendarIcon as CalendarIconLucide } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/exportUtils';
 import type { Romaneio, RomaneioItem } from '@/types/romaneio';
