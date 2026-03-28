@@ -83,7 +83,7 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
               {displayValue}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 themed-calendar" align="start">
+          <PopoverContent className="w-auto p-0 themed-calendar z-[200]" align="start">
             <Calendar
               mode="single"
               selected={dateVal}

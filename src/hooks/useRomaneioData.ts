@@ -95,6 +95,12 @@ export function useRomaneioData() {
     await supabase.from('romaneios').delete().eq('id', id);
   };
 
+  const updateRomaneio = async (id: string, updates: Partial<Romaneio>) => {
+    setRomaneios(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
+    const { error } = await supabase.from('romaneios').update(updates).eq('id', id);
+    if (error) { toast.error('Erro ao atualizar relatório'); fetchData(); }
+  };
+
   const naoEmbarcados = items.filter(i => i.status === 'nao_embarcado');
   const embarcados = items.filter(i => i.status === 'embarcado');
   const aguardandoLiberacao = items.filter(i => i.status === 'aguardando_liberacao');
@@ -103,6 +109,6 @@ export function useRomaneioData() {
     items, romaneios, loading,
     naoEmbarcados, embarcados, aguardandoLiberacao,
     addItem, addItems, updateItem, deleteItem, deleteItems,
-    updateItemsStatus, createRomaneio, deleteRomaneio, fetchData,
+    updateItemsStatus, createRomaneio, deleteRomaneio, updateRomaneio, fetchData,
   };
 }

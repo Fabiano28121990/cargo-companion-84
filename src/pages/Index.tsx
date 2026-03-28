@@ -1,4 +1,9 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format, isValid } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import Header from '@/components/Header';
 import Dashboard from '@/components/Dashboard';
 import ItemsTable from '@/components/ItemsTable';
@@ -15,7 +20,7 @@ import { useRomaneioData } from '@/hooks/useRomaneioData';
 import { useDesmonteData } from '@/hooks/useDesmonteData';
 import { useAuth } from '@/hooks/useAuth';
 import Auth from './Auth';
-import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer, CalendarIcon as CalendarIconLucide } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/exportUtils';
 import type { Romaneio, RomaneioItem } from '@/types/romaneio';
@@ -288,7 +293,27 @@ export default function Index() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">{r.transportadora}</h3>
-                        <p className="text-xs text-muted-foreground">Relatório #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs text-muted-foreground">Relatório #{r.numero} •</p>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-5 px-1 text-xs text-muted-foreground hover:text-foreground">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                {new Date(r.created_at).toLocaleDateString('pt-BR')}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 themed-calendar z-[200]" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={new Date(r.created_at)}
+                                onSelect={(d) => {
+                                  if (d) romaneio.updateRomaneio(r.id, { created_at: d.toISOString() });
+                                }}
+                                locale={ptBR}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
