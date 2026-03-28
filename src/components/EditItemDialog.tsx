@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,9 +94,10 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto z-[100]">
         <DialogHeader>
           <DialogTitle>Editar Item</DialogTitle>
+          <DialogDescription>Edite os campos abaixo e clique em Salvar.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-2">
           {fields.map(f => (
