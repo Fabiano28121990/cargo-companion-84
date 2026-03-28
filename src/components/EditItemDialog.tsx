@@ -94,9 +94,10 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto z-[100]">
         <DialogHeader>
           <DialogTitle>Editar Item</DialogTitle>
+          <DialogDescription>Edite os campos abaixo e clique em Salvar.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-2">
           {fields.map(f => (
