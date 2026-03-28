@@ -1,4 +1,9 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format, isValid } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import Header from '@/components/Header';
 import Dashboard from '@/components/Dashboard';
 import ItemsTable from '@/components/ItemsTable';
