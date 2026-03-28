@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useTransportadoras } from '@/hooks/useTransportadoras';
 
@@ -32,6 +32,23 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
     }
   }, [item, fields]);
 
+  const parseDateValue = (value: unknown) => {
+    if (!value || typeof value !== 'string') return undefined;
+    const normalized = value.trim();
+    if (!normalized) return undefined;
+
+    const directDate = new Date(normalized.includes('T') ? normalized : `${normalized}T00:00:00`);
+    if (isValid(directDate)) return directDate;
+
+    const isoDate = parse(normalized, 'yyyy-MM-dd', new Date());
+    if (isValid(isoDate)) return isoDate;
+
+    const brDate = parse(normalized, 'dd/MM/yyyy', new Date());
+    if (isValid(brDate)) return brDate;
+
+    return undefined;
+  };
+
   const handleSave = () => {
     if (!item) return;
     onSave(item.id, values);
@@ -39,7 +56,6 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
   };
 
   const renderField = (f: { key: string; label: string; type?: string }) => {
-    // Transportadora field -> select
     if (f.key === 'transportadora') {
       return (
         <Select value={values[f.key] || ''} onValueChange={v => setValues(prev => ({ ...prev, [f.key]: v }))}>
@@ -55,15 +71,16 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
       );
     }
 
-    // Date fields -> calendar
     if (f.type === 'date' || f.key === 'data' || f.key === 'emissao') {
-      const dateVal = values[f.key] ? new Date(values[f.key] + 'T00:00:00') : undefined;
+      const dateVal = parseDateValue(values[f.key]);
+      const displayValue = dateVal ? format(dateVal, 'dd/MM/yyyy') : (values[f.key] || 'Selecione a data');
+
       return (
         <Popover open={calendarOpenKey === f.key} onOpenChange={o => setCalendarOpenKey(o ? f.key : null)}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="h-9 justify-start text-left font-normal w-full">
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {values[f.key] ? format(new Date(values[f.key] + 'T00:00:00'), 'dd/MM/yyyy') : 'Selecione a data'}
+              {displayValue}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 themed-calendar" align="start">
