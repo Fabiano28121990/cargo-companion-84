@@ -293,7 +293,27 @@ export default function Index() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">{r.transportadora}</h3>
-                        <p className="text-xs text-muted-foreground">Relatório #{r.numero} • {new Date(r.created_at).toLocaleDateString('pt-BR')}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs text-muted-foreground">Relatório #{r.numero} •</p>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-5 px-1 text-xs text-muted-foreground hover:text-foreground">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                {new Date(r.created_at).toLocaleDateString('pt-BR')}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 themed-calendar z-[200]" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={new Date(r.created_at)}
+                                onSelect={(d) => {
+                                  if (d) romaneio.updateRomaneio(r.id, { created_at: d.toISOString() });
+                                }}
+                                locale={ptBR}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
