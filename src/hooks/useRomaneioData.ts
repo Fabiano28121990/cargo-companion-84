@@ -109,6 +109,6 @@ export function useRomaneioData() {
     items, romaneios, loading,
     naoEmbarcados, embarcados, aguardandoLiberacao,
     addItem, addItems, updateItem, deleteItem, deleteItems,
-    updateItemsStatus, createRomaneio, deleteRomaneio, fetchData,
+    updateItemsStatus, createRomaneio, deleteRomaneio, updateRomaneio, fetchData,
   };
 }
