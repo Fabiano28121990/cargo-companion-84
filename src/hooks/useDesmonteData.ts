@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { DesmonteItem } from '@/types/romaneio';
 import { useAuth } from './useAuth';
@@ -68,28 +68,48 @@ export function useDesmonteData() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const realtimeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mutatingRef = useRef(false);
+
+  const debouncedFetch = useCallback(() => {
+    if (mutatingRef.current) return;
+    if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+    realtimeDebounceRef.current = setTimeout(() => {
+      fetchData();
+    }, 500);
+  }, [fetchData]);
+
   useEffect(() => {
     if (!user) return;
     const channel = supabase.channel('desmonte_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'desmonte_items', filter: `user_id=eq.${user.id}` }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'desmonte_items', filter: `user_id=eq.${user.id}` }, () => debouncedFetch())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, fetchData]);
+    return () => { 
+      supabase.removeChannel(channel);
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+    };
+  }, [user, debouncedFetch]);
 
   const addItem = async (item: Partial<DesmonteItem>) => {
     if (!user) return;
+    mutatingRef.current = true;
     const optimistic = { ...item, id: crypto.randomUUID(), user_id: user.id, aguardando_desmonte: true, desmonte_concluido: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as DesmonteItem;
     setItems(prev => [optimistic, ...prev]);
     const { error } = await supabase.from('desmonte_items').insert({ ...item, user_id: user.id });
-    if (error) { toast.error('Erro ao adicionar item de desmonte'); fetchData(); }
+    mutatingRef.current = false;
+    if (error) { toast.error('Erro ao adicionar item de desmonte'); }
+    fetchData();
   };
 
   const addItems = async (newItems: Partial<DesmonteItem>[]) => {
     if (!user) return;
+    mutatingRef.current = true;
     const optimistics = newItems.map(i => ({ ...i, id: crypto.randomUUID(), user_id: user.id, aguardando_desmonte: true, desmonte_concluido: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as DesmonteItem));
     setItems(prev => [...optimistics, ...prev]);
     const { error } = await supabase.from('desmonte_items').insert(newItems.map(i => ({ ...i, user_id: user.id })));
-    if (error) { toast.error('Erro ao adicionar itens de desmonte'); fetchData(); }
+    mutatingRef.current = false;
+    if (error) { toast.error('Erro ao adicionar itens de desmonte'); }
+    fetchData();
   };
 
   const updateItem = async (id: string, updates: Partial<DesmonteItem>) => {
