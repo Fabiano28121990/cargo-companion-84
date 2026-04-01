@@ -106,12 +106,15 @@ export default function Index() {
   const confirmBulkDelete = async () => {
     if (!bulkDeleteTarget) return;
     const { ids, clearFn, type } = bulkDeleteTarget;
+    let success = false;
+
     if (type === 'desmonte') {
-      await desmonte.deleteItems(Array.from(ids));
+      success = await desmonte.deleteItems(Array.from(ids));
     } else {
-      await romaneio.deleteItems(Array.from(ids));
+      success = await romaneio.deleteItems(Array.from(ids));
     }
-    clearFn(new Set());
+
+    if (success) clearFn(new Set());
     setBulkDeleteTarget(null);
   };
 
