@@ -4,6 +4,17 @@ import type { RomaneioItem, Romaneio } from '@/types/romaneio';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
+const PAGE_SIZE = 1000;
+const FILTER_CHUNK_SIZE = 500;
+
+const chunkArray = <T,>(arr: T[], chunkSize: number): T[][] => {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    chunks.push(arr.slice(i, i + chunkSize));
+  }
+  return chunks;
+};
+
 export function useRomaneioData() {
   const { user } = useAuth();
   const [items, setItems] = useState<RomaneioItem[]>([]);
@@ -11,28 +22,92 @@ export function useRomaneioData() {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setItems([]);
+      setRomaneios([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    // Fetch all items without the default 1000 row limit
+
     const fetchAllItems = async () => {
       let allItems: RomaneioItem[] = [];
       let from = 0;
-      const pageSize = 1000;
+
       while (true) {
-        const { data } = await supabase.from('romaneio_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).range(from, from + pageSize - 1);
+        const { data, error } = await supabase
+          .from('romaneio_items')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) {
+          toast.error('Erro ao carregar itens');
+          break;
+        }
+
         if (!data || data.length === 0) break;
+
         allItems = [...allItems, ...data];
-        if (data.length < pageSize) break;
-        from += pageSize;
+
+        if (data.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
       }
-      return allItems;
+
+      const unique = new Map<string, RomaneioItem>();
+      allItems.forEach((item) => unique.set(item.id, item));
+
+      return Array.from(unique.values()).sort((a, b) => {
+        const createdCmp = b.created_at.localeCompare(a.created_at);
+        return createdCmp !== 0 ? createdCmp : b.id.localeCompare(a.id);
+      });
     };
-    const [allItems, romaneiosRes] = await Promise.all([
+
+    const fetchAllRomaneios = async () => {
+      let allRomaneios: Romaneio[] = [];
+      let from = 0;
+
+      while (true) {
+        const { data, error } = await supabase
+          .from('romaneios')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) {
+          toast.error('Erro ao carregar relatórios');
+          break;
+        }
+
+        if (!data || data.length === 0) break;
+
+        allRomaneios = [...allRomaneios, ...data];
+
+        if (data.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
+      }
+
+      const unique = new Map<string, Romaneio>();
+      allRomaneios.forEach((romaneio) => unique.set(romaneio.id, romaneio));
+
+      return Array.from(unique.values()).sort((a, b) => {
+        const createdCmp = b.created_at.localeCompare(a.created_at);
+        return createdCmp !== 0 ? createdCmp : b.id.localeCompare(a.id);
+      });
+    };
+
+    const [allItems, allRomaneios] = await Promise.all([
       fetchAllItems(),
-      supabase.from('romaneios').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+      fetchAllRomaneios(),
     ]);
+
     setItems(allItems);
-    if (romaneiosRes.data) setRomaneios(romaneiosRes.data);
+    setRomaneios(allRomaneios);
     setLoading(false);
   }, [user]);
 
@@ -70,15 +145,35 @@ export function useRomaneioData() {
   };
 
   const deleteItem = async (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-    const { error } = await supabase.from('romaneio_items').delete().eq('id', id);
-    if (error) { toast.error('Erro ao excluir item'); fetchData(); }
+    return deleteItems([id]);
   };
 
   const deleteItems = async (ids: string[]) => {
-    setItems(prev => prev.filter(i => !ids.includes(i.id)));
-    const { error } = await supabase.from('romaneio_items').delete().in('id', ids);
-    if (error) { toast.error('Erro ao excluir itens'); fetchData(); }
+    if (!user) return false;
+    if (ids.length === 0) return true;
+
+    const uniqueIds = Array.from(new Set(ids));
+    const idSet = new Set(uniqueIds);
+    const previousItems = items;
+
+    setItems(prev => prev.filter(i => !idSet.has(i.id)));
+
+    for (const chunk of chunkArray(uniqueIds, FILTER_CHUNK_SIZE)) {
+      const { error } = await supabase
+        .from('romaneio_items')
+        .delete()
+        .eq('user_id', user.id)
+        .in('id', chunk);
+
+      if (error) {
+        setItems(previousItems);
+        toast.error('Erro ao excluir itens');
+        fetchData();
+        return false;
+      }
+    }
+
+    return true;
   };
 
   const updateItemsStatus = async (ids: string[], status: string) => {
