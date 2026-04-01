@@ -113,14 +113,28 @@ export function useRomaneioData() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const realtimeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mutatingRef = useRef(false);
+
+  const debouncedFetch = useCallback(() => {
+    if (mutatingRef.current) return;
+    if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+    realtimeDebounceRef.current = setTimeout(() => {
+      fetchData();
+    }, 500);
+  }, [fetchData]);
+
   useEffect(() => {
     if (!user) return;
     const channel = supabase.channel('romaneio_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'romaneio_items', filter: `user_id=eq.${user.id}` }, () => fetchData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'romaneios', filter: `user_id=eq.${user.id}` }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'romaneio_items', filter: `user_id=eq.${user.id}` }, () => debouncedFetch())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'romaneios', filter: `user_id=eq.${user.id}` }, () => debouncedFetch())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, fetchData]);
+    return () => { 
+      supabase.removeChannel(channel);
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+    };
+  }, [user, debouncedFetch]);
 
   const addItem = async (item: Partial<RomaneioItem>) => {
     if (!user) return;
