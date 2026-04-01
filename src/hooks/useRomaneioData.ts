@@ -13,11 +13,25 @@ export function useRomaneioData() {
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [itemsRes, romaneiosRes] = await Promise.all([
-      supabase.from('romaneio_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    // Fetch all items without the default 1000 row limit
+    const fetchAllItems = async () => {
+      let allItems: RomaneioItem[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data } = await supabase.from('romaneio_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).range(from, from + pageSize - 1);
+        if (!data || data.length === 0) break;
+        allItems = [...allItems, ...data];
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      return allItems;
+    };
+    const [allItems, romaneiosRes] = await Promise.all([
+      fetchAllItems(),
       supabase.from('romaneios').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     ]);
-    if (itemsRes.data) setItems(itemsRes.data);
+    setItems(allItems);
     if (romaneiosRes.data) setRomaneios(romaneiosRes.data);
     setLoading(false);
   }, [user]);

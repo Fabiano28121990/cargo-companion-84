@@ -12,8 +12,18 @@ export function useDesmonteData() {
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase.from('desmonte_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    if (data) setItems(data);
+    // Fetch all items without the default 1000 row limit
+    let allItems: DesmonteItem[] = [];
+    let from = 0;
+    const pageSize = 1000;
+    while (true) {
+      const { data } = await supabase.from('desmonte_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).range(from, from + pageSize - 1);
+      if (!data || data.length === 0) break;
+      allItems = [...allItems, ...data];
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+    setItems(allItems);
     setLoading(false);
   }, [user]);
 
