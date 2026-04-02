@@ -204,17 +204,35 @@ export function useRomaneioData() {
 
   const createRomaneio = async (transportadora: string, itemIds: string[]) => {
     if (!user) return;
+    mutatingRef.current = true;
     const numero = romaneios.filter(r => r.transportadora === transportadora).length + 1;
     const optimisticId = crypto.randomUUID();
     const optimisticRomaneio: Romaneio = { id: optimisticId, user_id: user.id, transportadora, numero, created_at: new Date().toISOString() };
     setRomaneios(prev => [optimisticRomaneio, ...prev]);
-    setItems(prev => prev.map(i => itemIds.includes(i.id) ? { ...i, romaneio_id: optimisticId, status: 'embarcado' } : i));
+    const idSet = new Set(itemIds);
+    setItems(prev => prev.map(i => idSet.has(i.id) ? { ...i, romaneio_id: optimisticId, status: 'embarcado' } : i));
     const { data, error } = await supabase.from('romaneios').insert({ user_id: user.id, transportadora, numero }).select().single();
-    if (error || !data) { toast.error('Erro ao criar romaneio'); fetchData(); return; }
+    if (error || !data) { toast.error('Erro ao criar romaneio'); mutatingRef.current = false; fetchData(); return; }
     setRomaneios(prev => prev.map(r => r.id === optimisticId ? data : r));
     setItems(prev => prev.map(i => i.romaneio_id === optimisticId ? { ...i, romaneio_id: data.id } : i));
-    await supabase.from('romaneio_items').update({ romaneio_id: data.id, status: 'embarcado' }).in('id', itemIds);
+
+    for (const chunk of chunkArray(itemIds, FILTER_CHUNK_SIZE)) {
+      const { error: updateError } = await supabase
+        .from('romaneio_items')
+        .update({ romaneio_id: data.id, status: 'embarcado' })
+        .eq('user_id', user.id)
+        .in('id', chunk);
+      if (updateError) {
+        toast.error('Erro ao vincular itens ao relatório');
+        mutatingRef.current = false;
+        fetchData();
+        return;
+      }
+    }
+
+    mutatingRef.current = false;
     toast.success(`Relatório #${numero} criado para ${transportadora}`);
+    fetchData();
   };
 
   const deleteRomaneio = async (id: string) => {
