@@ -139,7 +139,7 @@ export function useRomaneioData() {
   const addItem = async (item: Partial<RomaneioItem>) => {
     if (!user) return;
     mutatingRef.current = true;
-    const optimistic = { ...item, id: crypto.randomUUID(), user_id: user.id, status: item.status || 'nao_embarcado', romaneio_id: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as RomaneioItem;
+    const optimistic = { ...item, id: crypto.randomUUID(), user_id: user.id, status: item.status || 'nao_embarcado', romaneio_id: null, observacao: item.observacao || '', created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as RomaneioItem;
     setItems(prev => [optimistic, ...prev]);
     const { error } = await supabase.from('romaneio_items').insert({ ...item, user_id: user.id });
     mutatingRef.current = false;
