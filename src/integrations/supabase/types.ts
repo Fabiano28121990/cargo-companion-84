@@ -83,6 +83,7 @@ export type Database = {
           data: string
           id: string
           nota_fiscal: string
+          observacao: string
           qtd_perfil: number
           remessa: string
           romaneio_id: string | null
@@ -98,6 +99,7 @@ export type Database = {
           data?: string
           id?: string
           nota_fiscal?: string
+          observacao?: string
           qtd_perfil?: number
           remessa?: string
           romaneio_id?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           data?: string
           id?: string
           nota_fiscal?: string
+          observacao?: string
           qtd_perfil?: number
           remessa?: string
           romaneio_id?: string | null

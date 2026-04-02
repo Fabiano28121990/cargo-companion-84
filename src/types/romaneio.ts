@@ -10,6 +10,7 @@ export interface RomaneioItem {
   qtd_perfil: number;
   status: string;
   romaneio_id: string | null;
+  observacao: string;
   created_at: string;
   updated_at: string;
 }

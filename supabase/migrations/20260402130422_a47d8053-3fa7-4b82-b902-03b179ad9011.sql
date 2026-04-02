@@ -1,0 +1,1 @@
+ALTER TABLE public.romaneio_items ADD COLUMN observacao text NOT NULL DEFAULT '';
