@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
@@ -14,13 +14,14 @@ import ExportMenu from '@/components/ExportMenu';
 import GlobalSearch from '@/components/GlobalSearch';
 import RomaneioReport from '@/components/RomaneioReport';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useRomaneioData } from '@/hooks/useRomaneioData';
 import { useDesmonteData } from '@/hooks/useDesmonteData';
 import { useAuth } from '@/hooks/useAuth';
 import Auth from './Auth';
-import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer, CalendarIcon as CalendarIconLucide } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Trash2, FileText, Loader2, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/exportUtils';
 import type { Romaneio, RomaneioItem } from '@/types/romaneio';
@@ -37,6 +38,7 @@ export default function Index() {
   const [desConSel, setDesConSel] = useState<Set<string>>(new Set());
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{ ids: Set<string>; clearFn: (s: Set<string>) => void; type: 'romaneio' | 'desmonte' } | null>(null);
   const [deleteRomaneioId, setDeleteRomaneioId] = useState<string | null>(null);
+  const [confirmGenerate, setConfirmGenerate] = useState(false);
 
   const [globalSearch, setGlobalSearch] = useState('');
   const [filters, setFilters] = useState({ transportadora: '', dateFrom: '', dateTo: '' });
@@ -88,7 +90,6 @@ export default function Index() {
   };
 
   const handleGenerateRomaneio = async () => {
-    if (naoEmbSel.size === 0) { toast.error('Selecione itens'); return; }
     const selectedItems = romaneio.naoEmbarcados.filter(i => naoEmbSel.has(i.id));
     const transportadoras = new Set(selectedItems.map(i => i.transportadora));
     for (const t of transportadoras) {
@@ -96,6 +97,7 @@ export default function Index() {
       await romaneio.createRomaneio(t, ids);
     }
     setNaoEmbSel(new Set());
+    setConfirmGenerate(false);
   };
 
   const handleDeleteSelected = (ids: Set<string>, clearFn: (s: Set<string>) => void, type: 'romaneio' | 'desmonte' = 'romaneio') => {
@@ -167,6 +169,16 @@ export default function Index() {
   const desmonteExportData = (items: typeof desmonte.aguardandoDesmonte) =>
     items.map(i => ({ 'Nota Fiscal': i.nota_fiscal, Remessa: i.remessa, 'Ordem de Venda': i.ordem_venda, Cliente: i.cliente, Valor: formatCurrency(i.valor), Emissão: i.emissao, 'Dias Parado': i.dias_parado, ID: i.item_id, OD: i.od, 'Rem. Devolução': i.remessa_devolucao, Status: i.status, INBOUND: i.inbound }));
 
+  // Generate confirmation summary
+  const generateSummary = () => {
+    const selectedItems = romaneio.naoEmbarcados.filter(i => naoEmbSel.has(i.id));
+    const transportadoras = [...new Set(selectedItems.map(i => i.transportadora))];
+    const totalVol = selectedItems.reduce((s, i) => s + i.volume, 0);
+    const totalVal = selectedItems.reduce((s, i) => s + i.valor, 0);
+    const totalRem = new Set(selectedItems.map(i => i.remessa)).size;
+    return { count: selectedItems.length, transportadoras, totalVol, totalVal, totalRem };
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -202,12 +214,12 @@ export default function Index() {
           <TabsContent value="nao_embarcados" className="space-y-3">
             <div className="flex flex-wrap gap-2 items-center justify-between">
               <div className="flex gap-2 flex-wrap items-center">
-                <Button size="sm" onClick={handleGenerateRomaneio} disabled={naoEmbSel.size === 0}>
+                <Button size="sm" onClick={() => { if (naoEmbSel.size === 0) { toast.error('Selecione itens'); return; } setConfirmGenerate(true); }} disabled={naoEmbSel.size === 0}>
                   <FileText className="mr-1 h-4 w-4" />Gerar Relatório
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={romaneio.addItem} onAddItems={romaneio.addItems} />
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" variant="outline" onClick={handleTransferToAguardLib} disabled={naoEmbSel.size === 0}>
                   Aguard. Liberação <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -237,7 +249,7 @@ export default function Index() {
                 </Button>
                 <ItemEntryForm showBulkImport onAddItem={async (item) => { await romaneio.addItem({ ...item, status: 'aguardando_liberacao' }); }} onAddItems={async (items) => { await romaneio.addItems(items.map(i => ({ ...i, status: 'aguardando_liberacao' }))); }} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(aguardLibSel, setAguardLibSel)} disabled={aguardLibSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({aguardLibSel.size})
                 </Button>
@@ -253,7 +265,7 @@ export default function Index() {
               <div className="flex gap-2 items-center">
                 <DesmonteEntryForm onAddItem={desmonte.addItem} onAddItems={desmonte.addItems} />
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <Button size="sm" variant="outline" onClick={handleDesmonteTransferToCompleted} disabled={aguardDesSel.size === 0}>
                   Desmonte Concluído <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -274,7 +286,7 @@ export default function Index() {
                   <ArrowLeft className="mr-1 h-4 w-4" />Aguard. Desmonte
                 </Button>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Button size="sm" variant="destructive" onClick={() => handleDeleteSelected(desConSel, setDesConSel, 'desmonte')} disabled={desConSel.size === 0}>
                   <Trash2 className="mr-1 h-4 w-4" />Excluir ({desConSel.size})
                 </Button>
@@ -319,10 +331,10 @@ export default function Index() {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => handlePrintRomaneio(r)}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handlePrintRomaneio(r)}>
                           <Printer className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteRomaneioId(r.id)}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => setDeleteRomaneioId(r.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -368,6 +380,38 @@ export default function Index() {
         onConfirm={() => { if (deleteRomaneioId) { romaneio.deleteRomaneio(deleteRomaneioId); setDeleteRomaneioId(null); } }}
         itemLabel="relatório"
       />
+
+      {/* Confirmation dialog for generating report */}
+      <AlertDialog open={confirmGenerate} onOpenChange={setConfirmGenerate}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Geração de Relatório</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                {(() => {
+                  const s = generateSummary();
+                  return (
+                    <>
+                      <p>Deseja gerar relatório(s) com os seguintes dados?</p>
+                      <div className="bg-muted rounded-md p-3 space-y-1 text-sm">
+                        <p><strong>{s.count}</strong> itens selecionados</p>
+                        <p><strong>{s.totalRem}</strong> remessas</p>
+                        <p>Volume total: <strong>{s.totalVol}</strong></p>
+                        <p>Valor total: <strong>{formatCurrency(s.totalVal)}</strong></p>
+                        <p>Transportadora(s): <strong>{s.transportadoras.join(', ')}</strong></p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleGenerateRomaneio}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
