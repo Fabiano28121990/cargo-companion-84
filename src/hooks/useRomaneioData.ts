@@ -197,9 +197,12 @@ export function useRomaneioData() {
   };
 
   const updateItemsStatus = async (ids: string[], status: string) => {
-    setItems(prev => prev.map(i => ids.includes(i.id) ? { ...i, status } : i));
-    const { error } = await supabase.from('romaneio_items').update({ status }).in('id', ids);
-    if (error) { toast.error('Erro ao atualizar status'); fetchData(); }
+    const idSet = new Set(ids);
+    setItems(prev => prev.map(i => idSet.has(i.id) ? { ...i, status } : i));
+    for (const chunk of chunkArray(ids, FILTER_CHUNK_SIZE)) {
+      const { error } = await supabase.from('romaneio_items').update({ status }).eq('user_id', user!.id).in('id', chunk);
+      if (error) { toast.error('Erro ao atualizar status'); fetchData(); return; }
+    }
   };
 
   const createRomaneio = async (transportadora: string, itemIds: string[]) => {
