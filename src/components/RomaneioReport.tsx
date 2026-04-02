@@ -16,6 +16,8 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
   const dataAtual = new Date().toLocaleDateString('pt-BR');
   const numero = `${new Date().toLocaleDateString('pt-BR').replace(/\//g, '')}${romaneio.numero.toString().padStart(3, '0')}`;
 
+  const itemsWithObs = items.filter(i => i.observacao && i.observacao.trim());
+
   return (
     <div ref={ref} className="bg-white text-black p-8 w-[210mm] min-h-[297mm] mx-auto print:p-6 print:m-0" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px' }}>
       {/* Header */}
@@ -67,6 +69,24 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
           ))}
         </tbody>
       </table>
+
+      {/* Observações */}
+      {itemsWithObs.length > 0 && (
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '8px' }}>
+          <tbody>
+            <tr>
+              <td style={{ border: '2px solid black', padding: '10px' }}>
+                <p style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '11px' }}>OBSERVAÇÕES</p>
+                {itemsWithObs.map((item, idx) => (
+                  <p key={idx} style={{ margin: '3px 0', fontSize: '10px' }}>
+                    <strong>NF {item.nota_fiscal} / Rem {item.remessa}:</strong> {item.observacao}
+                  </p>
+                ))}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
 
       {/* Summary + Conferente side by side */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>

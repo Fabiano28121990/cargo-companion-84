@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Download, Share2, FileSpreadsheet, FileText, File, Mail, MessageCircle, Printer } from 'lucide-react';
 import { exportToXlsx, exportToHtml, exportToTxt, exportToPdf, shareViaWhatsApp, shareViaEmail } from '@/utils/exportUtils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ExportMenuProps {
   data: Record<string, unknown>[];
@@ -26,15 +27,25 @@ export default function ExportMenu({ data, filename, title, onPrint }: ExportMen
   return (
     <div className="flex gap-1">
       {onPrint && (
-        <Button size="sm" variant="outline" onClick={onPrint}>
-          <Printer className="mr-1 h-3.5 w-3.5" />Imprimir
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button size="icon" variant="outline" className="h-8 w-8" onClick={onPrint}>
+              <Printer className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Imprimir</TooltipContent>
+        </Tooltip>
       )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline"><Download className="mr-1 h-3.5 w-3.5" />Exportar</Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Exportar</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={() => exportToXlsx(data, filename)}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />Excel (.xlsx)
@@ -52,9 +63,14 @@ export default function ExportMenu({ data, filename, title, onPrint }: ExportMen
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline"><Share2 className="mr-1 h-3.5 w-3.5" />Compartilhar</Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline" className="h-8 w-8"><Share2 className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Compartilhar</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent>
           {navigator.share && (
             <>
