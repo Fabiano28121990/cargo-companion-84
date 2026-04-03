@@ -13,8 +13,8 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
   const totalPerfil = items.reduce((s, i) => s + i.qtd_perfil, 0);
   const totalRemessas = new Set(items.map(i => i.remessa)).size;
   const totalNFs = new Set(items.map(i => i.nota_fiscal)).size;
-  const dataAtual = new Date().toLocaleDateString('pt-BR');
-  const numero = `${new Date().toLocaleDateString('pt-BR').replace(/\//g, '')}${romaneio.numero.toString().padStart(3, '0')}`;
+  const dataRomaneio = new Date(romaneio.created_at).toLocaleDateString('pt-BR');
+  const numero = `${dataRomaneio.replace(/\//g, '')}${romaneio.numero.toString().padStart(3, '0')}`;
 
   const itemsWithObs = items.filter(i => i.observacao && i.observacao.trim());
 
