@@ -13,8 +13,8 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
   const totalPerfil = items.reduce((s, i) => s + i.qtd_perfil, 0);
   const totalRemessas = new Set(items.map(i => i.remessa)).size;
   const totalNFs = new Set(items.map(i => i.nota_fiscal)).size;
-  const dataAtual = new Date().toLocaleDateString('pt-BR');
-  const numero = `${new Date().toLocaleDateString('pt-BR').replace(/\//g, '')}${romaneio.numero.toString().padStart(3, '0')}`;
+  const dataRomaneio = new Date(romaneio.created_at).toLocaleDateString('pt-BR');
+  const numero = `${dataRomaneio.replace(/\//g, '')}${romaneio.numero.toString().padStart(3, '0')}`;
 
   const itemsWithObs = items.filter(i => i.observacao && i.observacao.trim());
 
@@ -28,7 +28,7 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
             <td style={{ border: '2px solid black', padding: '8px', textAlign: 'center' }}>
               <span style={{ fontSize: '16px', fontWeight: 'bold' }}>RELATÓRIO DE TRANSPORTE Nº {numero}</span>
             </td>
-            <td style={{ border: '2px solid black', padding: '8px', width: '120px', textAlign: 'right', fontSize: '10px' }}>Data: {dataAtual}</td>
+            <td style={{ border: '2px solid black', padding: '8px', width: '120px', textAlign: 'right', fontSize: '10px' }}>Data: {dataRomaneio}</td>
           </tr>
         </tbody>
       </table>
@@ -79,7 +79,7 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
                 <p style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '11px' }}>OBSERVAÇÕES</p>
                 {itemsWithObs.map((item, idx) => (
                   <p key={idx} style={{ margin: '3px 0', fontSize: '10px' }}>
-                    <strong>NF {item.nota_fiscal} / Rem {item.remessa}:</strong> {item.observacao}
+                    <strong>NF {item.nota_fiscal} / Rem {item.remessa}:</strong> <strong>{item.observacao}</strong>
                   </p>
                 ))}
               </td>
