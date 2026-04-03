@@ -9,6 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { format, isValid, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 import { useTransportadoras } from '@/hooks/useTransportadoras';
 
 interface EditItemDialogProps {
@@ -62,7 +63,7 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
           <SelectTrigger className="h-9">
             <SelectValue placeholder="Selecione a Transportadora" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[200]">
             {transportadoras.map(t => (
               <SelectItem key={t.id} value={t.nome}>{t.nome}</SelectItem>
             ))}
@@ -83,7 +84,7 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
               {displayValue}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 themed-calendar z-[200]" align="start">
+          <PopoverContent className="w-auto p-0 z-[300]" align="start">
             <Calendar
               mode="single"
               selected={dateVal}
@@ -92,6 +93,7 @@ export default function EditItemDialog({ open, onOpenChange, item, fields, onSav
                 setCalendarOpenKey(null);
               }}
               locale={ptBR}
+              className={cn("p-3 pointer-events-auto")}
             />
           </PopoverContent>
         </Popover>
