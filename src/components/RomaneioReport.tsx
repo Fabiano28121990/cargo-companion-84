@@ -79,7 +79,7 @@ const RomaneioReport = forwardRef<HTMLDivElement, RomaneioReportProps>(({ romane
                 <p style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '11px' }}>OBSERVAÇÕES</p>
                 {itemsWithObs.map((item, idx) => (
                   <p key={idx} style={{ margin: '3px 0', fontSize: '10px' }}>
-                    <strong>NF {item.nota_fiscal} / Rem {item.remessa}:</strong> {item.observacao}
+                    <strong>NF {item.nota_fiscal} / Rem {item.remessa}:</strong> <strong>{item.observacao}</strong>
                   </p>
                 ))}
               </td>
