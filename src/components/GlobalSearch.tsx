@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Search, SlidersHorizontal, X, CalendarIcon } from 'lucide-react';
+import { format, isValid, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface GlobalSearchProps {
   search: string;
@@ -14,8 +19,16 @@ interface GlobalSearchProps {
 
 export default function GlobalSearch({ search, onSearchChange, filters, onFiltersChange, transportadoras }: GlobalSearchProps) {
   const hasFilters = filters.transportadora || filters.dateFrom || filters.dateTo;
+  const [calFromOpen, setCalFromOpen] = useState(false);
+  const [calToOpen, setCalToOpen] = useState(false);
 
   const clearFilters = () => onFiltersChange({ transportadora: '', dateFrom: '', dateTo: '' });
+
+  const parseDate = (v: string) => {
+    if (!v) return undefined;
+    const d = parse(v, 'yyyy-MM-dd', new Date());
+    return isValid(d) ? d : undefined;
+  };
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -34,7 +47,7 @@ export default function GlobalSearch({ search, onSearchChange, filters, onFilter
             <SlidersHorizontal className="mr-1 h-3.5 w-3.5" />Filtros{hasFilters && ' •'}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-72 space-y-3">
+        <PopoverContent className="w-80 space-y-3">
           <p className="text-sm font-medium">Filtros Avançados</p>
           <div className="space-y-2">
             <label className="text-xs text-muted-foreground">Transportadora</label>
@@ -47,13 +60,51 @@ export default function GlobalSearch({ search, onSearchChange, filters, onFilter
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
+            <div className="space-y-1">
               <label className="text-xs text-muted-foreground">De</label>
-              <Input type="date" value={filters.dateFrom} onChange={e => onFiltersChange({ ...filters, dateFrom: e.target.value })} className="h-8" />
+              <Popover open={calFromOpen} onOpenChange={setCalFromOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="h-8 w-full justify-start text-left font-normal text-xs">
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {filters.dateFrom ? format(parseDate(filters.dateFrom)!, 'dd/MM/yyyy') : 'Selecionar'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 z-[300]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={parseDate(filters.dateFrom)}
+                    onSelect={d => {
+                      if (d) onFiltersChange({ ...filters, dateFrom: format(d, 'yyyy-MM-dd') });
+                      setCalFromOpen(false);
+                    }}
+                    locale={ptBR}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <div>
+            <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Até</label>
-              <Input type="date" value={filters.dateTo} onChange={e => onFiltersChange({ ...filters, dateTo: e.target.value })} className="h-8" />
+              <Popover open={calToOpen} onOpenChange={setCalToOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="h-8 w-full justify-start text-left font-normal text-xs">
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {filters.dateTo ? format(parseDate(filters.dateTo)!, 'dd/MM/yyyy') : 'Selecionar'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 z-[300]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={parseDate(filters.dateTo)}
+                    onSelect={d => {
+                      if (d) onFiltersChange({ ...filters, dateTo: format(d, 'yyyy-MM-dd') });
+                      setCalToOpen(false);
+                    }}
+                    locale={ptBR}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           {hasFilters && <Button variant="ghost" size="sm" className="w-full" onClick={clearFilters}><X className="mr-1 h-3 w-3" />Limpar filtros</Button>}

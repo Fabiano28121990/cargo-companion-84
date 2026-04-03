@@ -8,7 +8,7 @@ import type { RomaneioItem } from '@/types/romaneio';
 import { formatCurrency } from '@/utils/exportUtils';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import EditItemDialog from './EditItemDialog';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -49,7 +49,7 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<RomaneioItem | null>(null);
-  const [obsPopover, setObsPopover] = useState<string | null>(null);
+  const [obsItem, setObsItem] = useState<RomaneioItem | null>(null);
   const [obsText, setObsText] = useState('');
 
   const sorted = useMemo(() => {
@@ -82,7 +82,6 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
     onSelectIds(next);
   };
 
-  // Selection summary
   const selectionSummary = useMemo(() => {
     if (selectedIds.size === 0) return null;
     const selected = items.filter(i => selectedIds.has(i.id));
@@ -96,13 +95,15 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
   const totalVolume = sorted.reduce((s, i) => s + i.volume, 0);
 
   const openObs = (item: RomaneioItem) => {
-    setObsPopover(item.id);
+    setObsItem(item);
     setObsText(item.observacao || '');
   };
 
-  const saveObs = (id: string) => {
-    onUpdateItem?.(id, { observacao: obsText } as any);
-    setObsPopover(null);
+  const saveObs = () => {
+    if (obsItem) {
+      onUpdateItem?.(obsItem.id, { observacao: obsText });
+      setObsItem(null);
+    }
   };
 
   return (
@@ -150,25 +151,14 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
                 <TableCell>
                   <div className="flex gap-1">
                     {onUpdateItem && (
-                      <Popover open={obsPopover === item.id} onOpenChange={o => { if (!o) setObsPopover(null); }}>
-                        <PopoverTrigger asChild>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className={`h-7 w-7 ${item.observacao ? 'text-amber-500' : 'text-muted-foreground hover:text-primary'}`} onClick={() => openObs(item)}>
-                                <MessageSquare className="h-3.5 w-3.5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{item.observacao || 'Adicionar observação'}</TooltipContent>
-                          </Tooltip>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64 z-[200]" align="end">
-                          <div className="space-y-2">
-                            <p className="text-xs font-medium">Observação</p>
-                            <Textarea value={obsText} onChange={e => setObsText(e.target.value)} rows={3} placeholder="Digite a observação..." />
-                            <Button size="sm" className="w-full" onClick={() => saveObs(item.id)}>Salvar</Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className={`h-7 w-7 ${item.observacao ? 'text-amber-500' : 'text-muted-foreground hover:text-primary'}`} onClick={() => openObs(item)}>
+                            <MessageSquare className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{item.observacao || 'Adicionar observação'}</TooltipContent>
+                      </Tooltip>
                     )}
                     {onUpdateItem && (
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => setEditItem(item)}>
@@ -190,6 +180,21 @@ export default function ItemsTable({ items, selectedIds, onSelectIds, onDeleteIt
           </TableBody>
         </Table>
       </div>
+
+      {/* Observation Dialog - using Dialog instead of Popover to avoid nesting issues */}
+      <Dialog open={!!obsItem} onOpenChange={(open) => { if (!open) setObsItem(null); }}>
+        <DialogContent className="max-w-sm z-[100]">
+          <DialogHeader>
+            <DialogTitle>Observação</DialogTitle>
+          </DialogHeader>
+          <Textarea value={obsText} onChange={e => setObsText(e.target.value)} rows={4} placeholder="Digite a observação..." />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setObsItem(null)}>Cancelar</Button>
+            <Button onClick={saveObs}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <DeleteConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => { if (!open) setDeleteId(null); }}
