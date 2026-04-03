@@ -238,11 +238,46 @@ export function useRomaneioData() {
     fetchData();
   };
 
+  const deleteRomaneioTimeouts = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
   const deleteRomaneio = async (id: string) => {
+    const deletedRomaneio = romaneios.find(r => r.id === id);
+    const affectedItems = items.filter(i => i.romaneio_id === id);
+
+    // Optimistic UI removal
     setRomaneios(prev => prev.filter(r => r.id !== id));
     setItems(prev => prev.map(i => i.romaneio_id === id ? { ...i, romaneio_id: null, status: 'nao_embarcado' } : i));
-    await supabase.from('romaneio_items').update({ romaneio_id: null, status: 'nao_embarcado' }).eq('romaneio_id', id);
-    await supabase.from('romaneios').delete().eq('id', id);
+
+    const timeoutId = setTimeout(async () => {
+      deleteRomaneioTimeouts.current.delete(id);
+      await supabase.from('romaneio_items').update({ romaneio_id: null, status: 'nao_embarcado' }).eq('romaneio_id', id);
+      await supabase.from('romaneios').delete().eq('id', id);
+    }, 6000);
+
+    deleteRomaneioTimeouts.current.set(id, timeoutId);
+
+    toast.success(`Relatório #${deletedRomaneio?.numero || ''} excluído`, {
+      duration: 5500,
+      action: {
+        label: 'Desfazer',
+        onClick: () => {
+          const pending = deleteRomaneioTimeouts.current.get(id);
+          if (pending) {
+            clearTimeout(pending);
+            deleteRomaneioTimeouts.current.delete(id);
+          }
+          // Restore UI state
+          if (deletedRomaneio) {
+            setRomaneios(prev => [deletedRomaneio, ...prev].sort((a, b) => b.created_at.localeCompare(a.created_at)));
+          }
+          setItems(prev => prev.map(i => {
+            const original = affectedItems.find(a => a.id === i.id);
+            return original ? { ...i, romaneio_id: id, status: 'embarcado' } : i;
+          }));
+          toast.success('Exclusão desfeita');
+        },
+      },
+    });
   };
 
   const updateRomaneio = async (id: string, updates: Partial<Romaneio>) => {
